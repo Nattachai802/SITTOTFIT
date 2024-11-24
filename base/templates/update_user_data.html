@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<div class="container mx-auto p-6">
+  <!-- หัวข้อ -->
+  <h2 class="text-3xl font-bold text-gray-800 mb-6">อัปเดตข้อมูล</h2>
+
+  <form method="post" class="bg-white shadow-md rounded-lg p-6 space-y-6">
+    {% csrf_token %}
+    
+    <!-- ฟอร์ม -->
+    <div class="space-y-4">
+      {{ form.as_p }}
+    </div>
+
+    <!-- ข้อความเพิ่มเติม -->
+    {% if form_type == 'personal_information' %}
+      <div class="bg-blue-50 p-4 rounded-lg border border-blue-200 text-blue-700">
+        <h3 class="text-xl font-semibold mb-2">ข้อมูลส่วนตัว</h3>
+        <p>กรุณากรอกข้อมูลเกี่ยวกับอาชีพและเป้าหมายของคุณ</p>
+      </div>
+    {% elif form_type == 'personal_health_information' %}
+      <div class="bg-green-50 p-4 rounded-lg border border-green-200 text-green-700">
+        <h3 class="text-xl font-semibold mb-2">ข้อมูลสุขภาพ</h3>
+        <p>กรุณากรอกข้อมูลสุขภาพของคุณ</p>
+      </div>
+    {% endif %}
+
+    <!-- ปุ่มบันทึก -->
+    <div class="flex items-center space-x-4">
+      <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg shadow">
+        บันทึกข้อมูล
+      </button>
+      <a href="{% url 'base:home' %}" 
+         class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded-lg shadow">
+        ยกเลิก
+      </a>
+    </div>
+  </form>
+</div>
+{% endblock %}

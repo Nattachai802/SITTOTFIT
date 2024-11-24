@@ -1,0 +1,68 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>SIT TO FIT</title>
+        {% tailwind_css %}
+        <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    </head>
+
+    <body class="flex h-screen bg-orange-100">
+        <aside class="w-64 bg-white shadow-lg">
+            <div class="p-6">
+                <h1 class="text-2xl font-bold text-green-600">SIT TO FIT</h1>
+            </div>
+            <nav class="mt-6">
+                <ul>
+                    <li class="py-2 px-4 hover:bg-green-100">
+                        <a href="#" class="flex items-center text-gray-700">
+                            <i class="fas fa-home mr-3"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="py-2 px-4 hover:bg-green-100">
+                        <a href="#" class="flex items-center text-gray-700">
+                            <i class="fas fa-book mr-3"></i>Instruction
+                        </a>
+                    </li>
+                    <li class="py-2 px-4 hover:bg-green-100">
+                        <a href="#" class="flex items-center text-gray-700">
+                            <i class="fas fa-bell mr-3"></i>Notification
+                        </a>
+                    </li>
+                    <li class="py-2 px-4 hover:bg-green-100">
+                        <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ#" class="flex items-center text-gray-700">
+                            <i class="fas fa-user mr-3"></i>Detection
+                        </a>
+                    </li>
+                    <li class="py-2 px-4 hover:bg-green-100">
+                        <a href={% url 'base:home'%} class="flex items-center text-gray-700">
+                            <i class="fas fa-cog mr-3"></i>Account
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="absolute bottom-10 w-full">
+                <hr class="my-4">
+                <ul>
+                    <li class="py-2 px-4 hover:bg-green-100">
+                        <form method="post" action="{% url 'base:logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="text-red-500">Logout</button>
+                        </form>
+
+                    </li>
+                </ul>
+            </div>
+        </aside>
+
+        <main class="flex-1 p-6">
+            {% block main %}
+
+            {% endblock %}
+        </main>
+    </body>
+</html>

@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ยืนยันการสมัครสมาชิก</title>
+</head>
+<body>
+    <h1>สวัสดี {{ user.username }}</h1>
+    <p>กรุณาคลิกลิงก์ด้านล่างเพื่อยืนยันบัญชีของคุณ:</p>
+    <a href="{{ verification_link }}">{{ verification_link }}</a>
+    <p>ขอบคุณ!</p>
+</body>
+</html>

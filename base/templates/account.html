@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<div class="container mx-auto py-8 px-4">
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- คอลัมน์ฝั่งซ้าย (ข้อมูลผู้ใช้งาน) -->
+    <div class="bg-white shadow-lg rounded-lg p-6">
+      <h1 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="blue" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-contact"><path d="M16 2v2"/><path d="M7 22v-2a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2"/><path d="M8 2v2"/><circle cx="12" cy="11" r="3"/><rect x="3" y="4" width="18" height="18" rx="2"/></svg>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5l7 7m0 0l-7 7m7-7H3" />
+        </svg>
+        ข้อมูลผู้ใช้งาน
+      </h1>
+      <div class="space-y-3">
+        {% for item in User_items %}
+        <p class="text-gray-700 text-lg flex items-center justify-between">
+          <span>ชื่อผู้ใช้งาน: <span class="font-semibold">{{ item.username }}</span></span>
+          <a href="{% url 'base:change_name' %}" class="text-gray-500 hover:text-gray-700">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+              <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 1-1-1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+          </a>
+        </p>
+        <p class="text-gray-700 text-lg flex items-center justify-between">
+          <span>รหัสผ่าน: <span class="font-semibold">********</span></span>
+          <a href="{% url 'base:change_pass' %}" class="text-gray-500 hover:text-gray-700">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-round-cog"><path d="M2 21a8 8 0 0 1 10.434-7.62"/><circle cx="10" cy="8" r="5"/><circle cx="18" cy="18" r="3"/><path d="m19.5 14.3-.4.9"/><path d="m16.9 20.8-.4.9"/><path d="m21.7 19.5-.9-.4"/><path d="m15.2 16.9-.9-.4"/><path d="m21.7 16.5-.9.4"/><path d="m15.2 19.1-.9.4"/><path d="m19.5 21.7-.4-.9"/><path d="m16.9 15.2-.4-.9"/></svg>
+          </a>
+        </p>
+        <p class="text-gray-700 text-lg">อีเมล: <span class="font-semibold">{{ item.email }}</span></p>
+        <p class="text-gray-700 text-lg">ระดับ: <span class="font-semibold">{{ item.role }}</span></p>
+        <p class="text-gray-700 text-lg">เบอร์โทร: <span class="font-semibold">{{ item.contact_number }}</span></p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- คอลัมน์ฝั่งขวา (ข้อมูลงานและสุขภาพ) -->
+    <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Card สำหรับข้อมูลงาน -->
+      <div class="bg-white shadow-lg rounded-lg p-6">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-briefcase-business"><path d="M12 12h.01"/><path d="M16 6V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><path d="M22 13a18.15 18.15 0 0 1-20 0"/><rect width="20" height="14" x="2" y="6" rx="2"/></svg>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 20h9m2-9H3m2 9h9m0-9H3" />
+          </svg>
+          ข้อมูลงาน
+        </h1>
+        <div class="space-y-3">
+          {% for item in Personal_items %}
+          <p class="text-gray-700 text-lg">ชื่องาน: <span class="font-semibold">{{ item.job_name }}</span></p>
+          <p class="text-gray-700 text-lg">เวลาในการทำงาน: <span class="font-semibold">{{ item.job_hours|floatformat:"0" }}</span> ชั่วโมง</p>
+          <p class="text-gray-700 text-lg">เวลาในการพัก: <span class="font-semibold">{{ item.break_hours|floatformat:"0" }}</span> ชั่วโมง</p>
+          <p class="text-gray-700 text-lg">ประเภทงาน: <span class="font-semibold">{{ item.job_type }}</span></p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Card สำหรับข้อมูลสุขภาพ -->
+      <div class="bg-white shadow-lg rounded-lg p-6">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="green" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-ambulance"><path d="M10 10H6"/><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.28a1 1 0 0 0-.684-.948l-1.923-.641a1 1 0 0 1-.578-.502l-1.539-3.076A1 1 0 0 0 16.382 8H14"/><path d="M8 8v4"/><path d="M9 18h6"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 20h-9M3 20h18M3 10h9m0-4H3m12 4h6m0-4h-6" />
+          </svg>
+          ข้อมูลสุขภาพ
+        </h1>
+        <div class="space-y-3">
+          {% for item in Health_items %}
+          <p class="text-gray-700 text-lg">น้ำหนัก: <span class="font-semibold">{{ item.weight|floatformat:"2" }}</span></p>
+          <p class="text-gray-700 text-lg">ส่วนสูง: <span class="font-semibold">{{ item.height|floatformat:"2" }}</span></p>
+          <p class="text-gray-700 text-lg">ค่า BMI: 
+            {% if bmi %}
+              <span class="font-semibold">{{ bmi }}</span>
+            {% else %}
+              <span class="text-red-500">ไม่สามารถคำนวณได้</span>
+            {% endif %}
+          </p>
+          <p class="text-gray-700 text-lg">สถานะ BMI: 
+            {% if bmi_category %}
+              <span class="font-semibold">{{ bmi_category }}</span>
+            {% else %}
+              <span class="text-red-500">ไม่สามารถคำนวณได้</span>
+            {% endif %}
+          </p>
+          <p class="text-gray-700 text-lg">อาการเจ็บปวด: <span class="font-semibold">{{ item.has_pain }}</span></p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ปุ่มแก้ไข -->
+  <div class="flex space-x-4 mt-6">
+    <!-- ปุ่มแก้ไขข้อมูลส่วนตัว -->
+    <a href="{% url 'base:update_personal_information' %}" 
+       class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg shadow transition duration-200">
+      แก้ไขข้อมูลส่วนตัว
+    </a>
+  
+    <!-- ปุ่มแก้ไขข้อมูลสุขภาพ -->
+    <a href="{% url 'base:update_personal_health' %}" 
+       class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-lg shadow transition duration-200">
+      แก้ไขข้อมูลสุขภาพ
+    </a>
+  </div>
+</div>
+{% endblock %}
