@@ -108,7 +108,7 @@ class PersonalHealthInformationUpdateView(LoginRequiredMixin, UpdateView):
     model = PersonalHealthInformation
     fields = ['age', 'height', 'weight', 'has_pain']
     template_name = 'update_user_data.html'  # ใช้ Template เดียวกัน
-    success_url = reverse_lazy('home')
+    success_url = reverse_lazy('base:home')
 
     def get_object(self, queryset=None):
         obj, created = PersonalHealthInformation.objects.get_or_create(user=self.request.user)

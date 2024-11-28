@@ -40,17 +40,6 @@ class PersonalHealthInformation(models.Model):
     def __str__(self):
         return f'{self.user.username if self.user else "No User"} - Health Info'
     
-class UserUsageHistory(models.Model):
-    user = models.ForeignKey(UserInfomation, on_delete=models.CASCADE)
-    timestamp = models.DateTimeField(auto_now_add=True)
-    detect_type = models.CharField(max_length=50, choices=[
-        ('Simple Detection', 'Simple Detection'),
-        ('Advanced Detection', 'Advanced Detection')
-    ])
-    usage_count = models.IntegerField()
-
-    def __str__(self):
-        return f'{self.user.username} - {self.detect_type}'
 
 class PostureDetection(models.Model):
     user = models.ForeignKey(UserInfomation, on_delete=models.CASCADE)
@@ -60,6 +49,17 @@ class PostureDetection(models.Model):
 
     def __str__(self):
         return f'{self.user.username} - Posture Score: {self.score}'
+
+class UserUsageHistory(models.Model):
+    posture_detection = models.ForeignKey(PostureDetection, on_delete=models.CASCADE , default=1)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    detect_type = models.CharField(max_length=50, choices=[
+        ('Simple Detection', 'Simple Detection'),
+        ('Advanced Detection', 'Advanced Detection')
+    ])
+
+    def __str__(self):
+        return f'{self.posture_detection.user.username} - {self.detect_type} - Score: {self.posture_detection.score}'
 
 class NotificationLog(models.Model):
     user = models.ForeignKey(UserInfomation, on_delete=models.CASCADE)

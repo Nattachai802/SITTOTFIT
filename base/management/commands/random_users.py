@@ -1,5 +1,8 @@
 from django.core.management.base import BaseCommand
-from base.models import UserInfomation, PersonalInformation, PersonalHealthInformation, UserUsageHistory, PostureDetection, NotificationLog
+from base.models import (
+    UserInfomation, PersonalInformation, PersonalHealthInformation,
+    UserUsageHistory, PostureDetection, NotificationLog
+)
 from faker import Faker
 import random
 
@@ -10,9 +13,11 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('users', type=int, help='Number of users to create')
+        parser.add_argument('--posture-count', type=int, default=1, help='Number of PostureDetection per user')
 
     def handle(self, *args, **kwargs):
         users_count = kwargs['users']
+        posture_count = kwargs['posture_count']
 
         for _ in range(users_count):
             # สร้าง UserInfomation
@@ -46,22 +51,27 @@ class Command(BaseCommand):
             )
             self.stdout.write(f'PersonalHealthInformation for {user.username} created')
 
+            # สร้าง UserUsageHistory
             UserUsageHistory.objects.create(
                 user=user,
                 detect_type=random.choice(['Simple Detection', 'Advanced Detection']),
-                usage_count=random.randint(1, 10),
             )
 
-            PostureDetection.objects.create(
-                user=user,
-                detection_time=fake.time_delta(),
-                score=random.randint(50, 100),
-            )
+            # สร้าง PostureDetection หลายรายการ
+            for _ in range(posture_count):
+                PostureDetection.objects.create(
+                    user=user,
+                    detection_time=fake.time_delta(),
+                    score=random.randint(50, 100),
+                )
+            self.stdout.write(f'{posture_count} PostureDetection records for {user.username} created')
 
+            # สร้าง NotificationLog
             NotificationLog.objects.create(
                 user=user,
                 message=fake.sentence(),
                 admin_message=fake.sentence(),
             )
+            self.stdout.write(f'NotificationLog for {user.username} created')
 
         self.stdout.write('Sample data generated successfully.')

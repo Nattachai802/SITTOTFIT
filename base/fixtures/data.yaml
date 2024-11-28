@@ -1,0 +1,105 @@
+- model: base.PostureDetection
+  pk: 1
+  fields:
+    user: 2
+    timestamp: 2024-11-25T10:00:00Z
+    detection_time: "00:20:00"
+    score: 79
+- model: base.PostureDetection
+  pk: 2
+  fields:
+    user: 2
+    timestamp: 2024-11-26T11:00:00Z
+    detection_time: "00:25:00"
+    score: 83
+- model: base.PostureDetection
+  pk: 3
+  fields:
+    user: 2
+    timestamp: 2024-11-26T15:00:00Z
+    detection_time: "00:18:00"
+    score: 76
+- model: base.PostureDetection
+  pk: 4
+  fields:
+    user: 2
+    timestamp: 2024-11-27T10:00:00Z
+    detection_time: "00:22:00"
+    score: 89
+- model: base.PostureDetection
+  pk: 5
+  fields:
+    user: 2
+    timestamp: 2024-11-27T14:00:00Z
+    detection_time: "00:19:00"
+    score: 91
+- model: base.PostureDetection
+  pk: 6
+  fields:
+    user: 2
+    timestamp: 2024-11-27T18:00:00Z
+    detection_time: "00:17:00"
+    score: 84
+- model: base.PostureDetection
+  pk: 7
+  fields:
+    user: 2
+    timestamp: 2024-11-28T09:00:00Z
+    detection_time: "00:23:00"
+    score: 96
+- model: base.PostureDetection
+  pk: 8
+  fields:
+    user: 2
+    timestamp: 2024-11-28T13:00:00Z
+    detection_time: "00:15:00"
+    score: 88
+- model: base.PostureDetection
+  pk: 9
+  fields:
+    user: 2
+    timestamp: 2024-11-28T17:00:00Z
+    detection_time: "00:24:00"
+    score: 87
+- model: base.PostureDetection
+  pk: 10
+  fields:
+    user: 2
+    timestamp: 2024-11-29T09:00:00Z
+    detection_time: "00:20:00"
+    score: 86
+- model: base.PostureDetection
+  pk: 11
+  fields:
+    user: 2
+    timestamp: 2024-11-29T12:00:00Z
+    detection_time: "00:18:00"
+    score: 82
+- model: base.PostureDetection
+  pk: 12
+  fields:
+    user: 2
+    timestamp: 2024-11-30T08:00:00Z
+    detection_time: "00:21:00"
+    score: 81
+- model: base.PostureDetection
+  pk: 13
+  fields:
+    user: 2
+    timestamp: 2024-11-30T14:00:00Z
+    detection_time: "00:19:00"
+    score: 77
+- model: base.PostureDetection
+  pk: 14
+  fields:
+    user: 2
+    timestamp: 2024-12-01T10:00:00Z
+    detection_time: "00:22:00"
+    score: 88
+- model: base.PostureDetection
+  pk: 15
+  fields:
+    user: 2
+    timestamp: 2024-12-01T16:00:00Z
+    detection_time: "00:16:00"
+    score: 85
