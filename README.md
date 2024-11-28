@@ -7,6 +7,8 @@ SIT TO FIT เป็นระบบที่ช่วยติดตามแล
 # ความคืบหน้าในปัจจุบัน
 
 1. ระบบAutentification
-![หน้าlogin](Account.png)
+![หน้าlogin](Login.png)
 3. ระบบแสดงหน้าต่างผู้ใช้งาน(AccountView)
-4. ระบบแสดงแผนภาพแสดงความคืบหน้า(Dashborad)
+![หน้าlogin](Account.png)
+5. ระบบแสดงแผนภาพแสดงความคืบหน้า(Dashborad)
+![หน้าlogin](Dashborad.png)
