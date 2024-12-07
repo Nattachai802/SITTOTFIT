@@ -28,7 +28,6 @@ class DashboardHomeView(TemplateView):
         user_info = UserInfomation.objects.filter(username =user.username).first()
         usage_history = UserUsageHistory.objects.filter(posture_detection__user=user_info )
         posture_data = PostureDetection.objects.filter(user=user_info )
-        Notification = NotificationLog.objects.filter(user=user_info )
         personal_info = PersonalInformation.objects.filter(user=user_info ).first()
 
         usage_count = posture_data.count()
@@ -38,7 +37,6 @@ class DashboardHomeView(TemplateView):
 
         context['usage_history'] = usage_history
         context['posture_data'] = posture_data
-        context['notification_logs'] = Notification
 
         # Calculate daily scores
         daily_scores = defaultdict(list)
@@ -107,20 +105,32 @@ class DashboardHomeView(TemplateView):
             if scores_yesterday
             else 0
         )
-        print(avg_score_yesterday)
+        if scores_yesterday:
+            max_yesterday = max(scores_yesterday)
+            min_yesterday = min(scores_yesterday)
+        else:
+            max_yesterday = 0 
+            min_yesterday = 0 
+
+        if scores_today:
+            max_today = max(scores_today)
+            min_today = min(scores_today)
+        else:
+            max_today = 0 
+            min_today = 0 
 
         
         context['usage_count'] = usage_count
         context['yesterday_score'] = avg_score_yesterday
-        context['max_yesterday'] = max(scores_yesterday)
-        context['min_yesterday'] = min(scores_yesterday)
+        context['max_yesterday'] = max_yesterday
+        context['min_yesterday'] = min_yesterday
         context['Rank'] = Rank
         context['avg_score'] = avg_score_today
         context['today_count'] = len(scores_today)
         context['peak_hour'] = peak_hour
         context['peak_count'] = peak_hour_count
-        context['max_score'] = max(scores_today)
-        context['min_score'] = min(scores_today)
+        context['max_score'] = max_today
+        context['min_score'] = min_today
 
 
         return context

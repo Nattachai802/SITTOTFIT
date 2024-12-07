@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
-
+from firebase_admin import initialize_app
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -45,11 +45,16 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     'django_browser_reload',
+    'theme',
     'base',
     'tailwind',
     'Dashborad',
-    'theme',
+    "fcm_django",
+    'django_apscheduler',
+    "Notification",
 ]
+
+
 TAILWIND_APP_NAME = 'theme'
 NPM_BIN_PATH = r"C:\Program Files\nodejs\npm.cmd"
 
@@ -93,6 +98,9 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
+        'OPTIONS': {
+            'timeout': 40,  # เพิ่มเวลา timeout เพื่อหลีกเลี่ยงการล็อก
+        }
     }
 }
 

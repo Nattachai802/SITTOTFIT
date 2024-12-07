@@ -17,10 +17,19 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path , include
+import os
+from django.views.static import serve
+from django.views.decorators.cache import never_cache
+from django.conf.urls.static import static
+from django.conf import settings
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path('',include('base.urls')),
     path("__reload__/", include("django_browser_reload.urls")),
     path('',include('Dashborad.urls')),
+    path('',include('Notification.urls')),
+        path('firebase-messaging-sw.js', never_cache(serve), {
+        'path': 'firebase-messaging-sw.js',
+        'document_root': os.path.join(settings.BASE_DIR, 'Notification', 'static'),}),
 ]
