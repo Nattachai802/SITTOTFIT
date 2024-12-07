@@ -13,7 +13,7 @@ class NotificationSettings(models.Model):
     user = models.OneToOneField(UserInfomation, on_delete=models.CASCADE)
     is_enabled = models.BooleanField(default=True)  # เปิด/ปิดการแจ้งเตือน
     interval_minutes = models.IntegerField(
-        choices=[(45, '45 นาที'), (60, '60 นาที')],
+        choices=[(45, '45 นาที'), (60, '60 นาที'),(1,' 1 นาที')],
         default=45
     )
 

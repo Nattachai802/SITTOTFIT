@@ -95,12 +95,20 @@ WSGI_APPLICATION = "STF.wsgi.application"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    "default": {
+    "sqlite3": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
         'OPTIONS': {
             'timeout': 40,  # เพิ่มเวลา timeout เพื่อหลีกเลี่ยงการล็อก
         }
+    },
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'mydb',  # ชื่อฐานข้อมูล
+        'USER': 'root',  # ชื่อผู้ใช้
+        'PASSWORD': '1234',  # รหัสผ่าน
+        'HOST': 'localhost',  # ที่อยู่ของ MySQL
+        'PORT': '3306',  # พอร์ตของ MySQL
     }
 }
 
