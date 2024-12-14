@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block main %}
+<body class="bg-orange-50 font-sans">
+
+    <!-- Container -->
+    <div class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-md mt-12">
+        <h1 class="text-3xl font-bold text-center text-orange-600 mb-6">Camera Detection</h1>
+
+        <!-- Video Section -->
+        <div class="flex justify-center mb-6">
+            <video id="video" width="640" height="480" autoplay class="border-4 border-orange-200 rounded-lg shadow-lg"></video>
+        </div>
+
+        <!-- Capture Button -->
+        <div class="flex justify-center">
+            <button id="capture" onclick="captureFrame()" class="btn btn-primary bg-orange-500 hover:bg-orange-600 text-white rounded-lg px-6 py-2 shadow-lg">
+                Capture
+            </button>
+        </div>
+
+        <!-- Results Section -->
+        <div id="result" class="mt-8 bg-orange-100 p-6 rounded-lg shadow-md">
+            <h2 class="text-2xl font-semibold text-center text-orange-600 mb-4">Processing Result</h2>
+            <p id="result-message" class="text-center text-orange-700 text-lg"></p>
+            <ul id="result-details" class="list-none mt-4 text-gray-700 space-y-2">
+                <!-- Results will be dynamically populated here -->
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function getCSRFToken() {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.startsWith('csrftoken=')) {
+                    return cookie.substring('csrftoken='.length, cookie.length);
+                }
+            }
+            return null;
+        }
+        const csrfToken = getCSRFToken();
+        const videoElement = document.getElementById('video');
+
+        // เปิดกล้องโดยใช้ navigator.mediaDevices.getUserMedia()
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                videoElement.srcObject = stream;
+            })
+            .catch(error => {
+                console.error("Error accessing webcam: ", error);
+            });
+
+        // ฟังก์ชั่นสำหรับจับภาพจากกล้องและส่งไปที่ Django
+        function captureFrame() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 640;
+            canvas.height = 480;
+            const context = canvas.getContext('2d');
+            context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+
+            // แปลงภาพเป็น base64 เพื่อส่งไปยัง Django
+            const imageData = canvas.toDataURL('image/png');
+
+            // ส่งข้อมูลภาพไปยัง Django ผ่าน fetch
+            fetch('/process_image/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken,
+                },
+                body: JSON.stringify({ image: imageData })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById('result-message').textContent = `Error: ${data.error}`;
+                    document.getElementById('result-details').innerHTML = '';
+                } else {
+                    document.getElementById('result-message').textContent = data.message;
+                    document.getElementById('result-details').innerHTML = `
+                        <li><strong>Width:</strong> ${data.width}px</li>
+                        <li><strong>Height:</strong> ${data.height}px</li>
+                        <li><strong>Average Brightness:</strong> ${data.avg_brightness.toFixed(2)}</li>
+                        <li><strong>Is Low Brightness:</strong> ${data.is_low_brightness ? 'Yes' : 'No'}</li>
+                        <li><strong>Detections:</strong></li>
+                        <ul>
+                            ${data.detections.map(det => `
+                                <li>${det.class_name} (${det.confidence.toFixed(2)}%): [${det.bbox.join(', ')}]</li>
+                            `).join('')}
+                        </ul>
+                        <li><strong>Is Sitting on Chair:</strong> ${data.is_sitting ? 'Yes' : 'No'}</li>
+                        <li><strong>Is Fullbody? :</strong> ${data.is_full_body_detected ? 'Yes' : 'No'}</li>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error processing image:', error);
+                document.getElementById('result-message').textContent = 'An unexpected error occurred.';
+                document.getElementById('result-details').innerHTML = '';
+            });
+        }
+    </script>
+</body>
+{% endblock %}

@@ -20,7 +20,7 @@ def notification_settings_view(request):
     else:
         form = NotificationSettingsForm(instance=settings)
 
-    return render(request, 'notification_settings.html', {'form': form, 'message': 'การตั้งค่าถูกบันทึกแล้ว'})
+    return render(request, 'notification_settings.html', {'form': form, 'message': None})
 
 @csrf_exempt
 def save_fcm_token(request):

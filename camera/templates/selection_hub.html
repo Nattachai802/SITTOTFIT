@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block main %}
+<div class="bg-orange-400 p-6 rounded-lg shadow-lg my-5 flex flex-col items-start">
+    <div class="mb-3">
+        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-aperture"><circle cx="12" cy="12" r="10"/><path d="m14.31 8 5.74 9.94"/><path d="M9.69 8h11.48"/><path d="m7.38 12 5.74-9.94"/><path d="M9.69 16 3.95 6.06"/><path d="M14.31 16H2.83"/><path d="m16.62 12-5.74 9.94"/></svg>
+    </div>
+    <h1 class="text-3xl font-bold text-white text-center">Posture Detection</h1>
+    <p class="text-lg text-orange-100 mt-2 text-center">
+        ตรวจจับท่านั่ง
+    </p>
+</div>
+<div class="flex justify-center items-center min-h-screen bg-orange-50">
+    
+    <div class="card w-96 bg-orange-100 shadow-md border border-orange-200 rounded-lg">
+      <figure class="px-10 pt-10">
+        <img src="http://127.0.0.1:8000/static/images/sitting.png" alt="Illustration" class="rounded-xl w-35 h-35 object-contain">
+      </figure>
+      <div class="card-body items-center text-center">
+        <h2 class="card-title text-xl font-semibold text-orange-600">Side-Part Detection</h2>
+        <p class="text-orange-700 text-sm">
+          ตรวจจับผ่านกล้องถ่ายภาพสด (กล้องต้องวางอยู่ด้านข้าง) จำเป็นต้องติดตั้งกล้อง ซึ่งสามารถตรวจสอบได้อย่างละเอียด
+        </p>
+        <div class="card-actions mt-4">
+          <a href= {% url 'camera:camera_detection' %} class="btn btn-primary bg-orange-500 hover:bg-orange-600 text-white rounded-lg px-6 py-2">
+            เริ่มทำการตรวจสอบ
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+{% endblock %}

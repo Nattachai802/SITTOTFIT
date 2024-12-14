@@ -29,7 +29,8 @@ urlpatterns = [
     path("__reload__/", include("django_browser_reload.urls")),
     path('',include('Dashborad.urls')),
     path('',include('Notification.urls')),
-        path('firebase-messaging-sw.js', never_cache(serve), {
+    path('',include('camera.urls')),
+    path('firebase-messaging-sw.js', never_cache(serve), {
         'path': 'firebase-messaging-sw.js',
         'document_root': os.path.join(settings.BASE_DIR, 'Notification', 'static'),}),
 ]

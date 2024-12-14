@@ -52,6 +52,8 @@ INSTALLED_APPS = [
     "fcm_django",
     'django_apscheduler',
     "Notification",
+    'channels',
+    'camera',
 ]
 
 
@@ -87,6 +89,7 @@ TEMPLATES = [
         },
     },
 ]
+ASGI_APPLICATION = 'STF.asgi.application'
 
 WSGI_APPLICATION = "STF.wsgi.application"
 

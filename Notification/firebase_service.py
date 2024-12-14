@@ -2,7 +2,7 @@ from firebase_admin import credentials, messaging, initialize_app
 import firebase_admin
 
 # Initialize Firebase
-cred = credentials.Certificate("Notification\key\sit-to-fit-40890-firebase-adminsdk-tt616-ee3b9a7e1d.json")
+cred = credentials.Certificate(r"Notification\key\sit-to-fit-40890-firebase-adminsdk-tt616-ee3b9a7e1d.json")
 firebase_admin.initialize_app(cred)
 print("Firebase initialized")
 
