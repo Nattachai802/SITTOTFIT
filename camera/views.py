@@ -13,7 +13,8 @@ import mediapipe as mp
 from .utils.posture_analysis import calculate_angles , calculate_score
 from base.models import PostureDetection , UserUsageHistory
 from django.utils import timezone
-
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
 
 class CameraDetectionView(TemplateView):
     template_name = 'camera.html'
@@ -144,57 +145,97 @@ def process_image(request):
             return JsonResponse({'error': f"Unexpected error: {str(e)}"}, status=500)
 
 
+@csrf_exempt
+@login_required
 def posture_detection(request):
     if request.method == 'POST':
         try:
-            # รับข้อมูลภาพจาก request
             data = json.loads(request.body)
             image_data = data.get('image')
-            detect_type = data.get('detect_type', 'Photo Detection')  # กำหนดค่าเริ่มต้นเป็น 'Photo Detection'
+            detect_type = data.get('detect_type', 'Photo Detection')
 
-            # ตรวจสอบ detect_type ที่ถูกต้อง
+            if image_data is None:
+                return JsonResponse({"error": "ไม่พบข้อมูลรูปภาพ"}, status=400)
+
             if detect_type not in ['Photo Detection', 'Side-part Detection']:
-                return JsonResponse({'error': 'Invalid detection type.'}, status=400)
+                return JsonResponse({'error': 'ประเภทการตรวจจับไม่ถูกต้อง.'}, status=400)
 
-            # แปลง Base64 เป็นภาพ
+            # แปลงรูปจาก base64
             img_data = base64.b64decode(image_data.split(',')[1])
             img = Image.open(BytesIO(img_data))
             img = np.array(img)
 
-            # ตรวจจับและคำนวณมุมกับคะแนน
+            # ประมวลผลท่าทางด้วย mediapipe
             mp_pose = mp.solutions.pose
-            pose = mp_pose.Pose()
-            img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            results_pose = pose.process(img_rgb)
+            with mp_pose.Pose(static_image_mode=True) as pose:
+                img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+                results_pose = pose.process(img_rgb)
 
-            if not results_pose.pose_landmarks:
-                return JsonResponse({'error': 'Pose landmarks not detected'}, status=400)
+                if not results_pose.pose_landmarks:
+                    return JsonResponse({'error': 'ไม่พบจุดสังเกตท่าทาง'}, status=400)
 
-            angles = calculate_angles(results_pose.pose_landmarks)
-            score, feedback = calculate_score(angles)
+                angles = calculate_angles(results_pose.pose_landmarks)
+                score, feedback = calculate_score(angles)
 
-            # บันทึก PostureDetection
-            posture_detection_instance = PostureDetection.objects.create(
-                user=request.user,
-                score=score
-            )
-            print(detect_type)
+            # กรณี Photo Detection บันทึกข้อมูลลงฐานข้อมูลทันที
+            if detect_type == 'Photo Detection':
+                # สมมติว่า UserInfomation เชื่อมกับ User อย่างถูกต้อง
+                posture_detection_instance = PostureDetection.objects.create(
+                    user=request.user,
+                    score=score,
+                    detection_time=None  # Photo Detection ไม่มีการกำหนดเวลา
+                )
 
-            # บันทึก UserUsageHistory
-            detection_time = timezone.now() if detect_type == 'Side-part Detection' else None
-            UserUsageHistory.objects.create(
-                posture_detection=posture_detection_instance,
-                detect_type=detect_type,
-                detection_time=detection_time
-            )
+                UserUsageHistory.objects.create(
+                    posture_detection=posture_detection_instance,
+                    detect_type='Photo Detection',
+                    detection_time=None
+                )
 
-            # ส่งผลลัพธ์กลับไป
+            # หากเป็น Side-part Detection (Continuous Detection) ไม่บันทึกฐานข้อมูลตอนนี้
+            # แค่ส่งข้อมูล score และ feedback กลับไปให้ frontend สะสมคะแนนไว้ก่อน
+
             return JsonResponse({
-                "message": "Posture detected successfully",
+                "message": "ตรวจจับท่าทางสำเร็จ",
                 "angles": angles,
                 "score": score,
-                "feedback": feedback
+                "feedback": feedback,
+                "posture_valid": score 
             })
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
+@csrf_exempt
+@login_required
+def save_detection_result(request):
+    # ฟังก์ชั่นนี้เรียกใช้ตอนที่ผู้ใช้กด Stop Detect ในกรณี Continuous Detection
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            score = data.get('score')
+            detection_duration = data.get('detection_duration')
+
+            if score is None:
+                return JsonResponse({'error': 'คะแนนเป็นข้อมูลที่จำเป็น.'}, status=400)
+            
+            if detection_duration is None:
+                return JsonResponse({'error': 'จำเป็นต้องมีข้อมูลระยะเวลาในการตรวจจับ.'}, status=400)
+
+
+            posture_detection_instance = PostureDetection.objects.create(
+                user=request.user,
+                score=score,
+                detection_time=detection_duration 
+            )
+
+            UserUsageHistory.objects.create(
+                posture_detection=posture_detection_instance,
+                detect_type='Side-part Detection',
+                detection_time=detection_duration 
+            )
+
+            return JsonResponse({"message": "บันทึกผลการตรวจจับเรียบร้อยแล้ว."})
 
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)

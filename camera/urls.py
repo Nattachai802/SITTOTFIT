@@ -8,4 +8,5 @@ urlpatterns = [
     path('posture-detection/', views.posture_detection, name='posture-detection'),
     path('Estimation/',views.Detection_View.as_view(), name='estimation'),
     path('Upload-Image/',views.Image_View.as_view(),name='Image-upload'),
+    path('save-detection-result/', views.save_detection_result, name='save_detection_result'),
 ]

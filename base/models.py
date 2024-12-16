@@ -47,7 +47,7 @@ class PostureDetection(models.Model):
     user = models.ForeignKey(UserInfomation, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True , null=True)
     score = models.IntegerField()
-    detection_time = models.DateTimeField(null=True, blank=True)
+    detection_time = models.FloatField(null=True, blank=True)
 
     
 
@@ -61,7 +61,7 @@ class UserUsageHistory(models.Model):
         ('Photo Detection', 'Photo Detection'),
         ('Side-part Detection', 'Side-part Detection')
     ])
-    detection_time = models.DateTimeField(null=True, blank=True)
+    detection_time = models.FloatField(null=True, blank=True)
 
     def clean(self):
         # ถ้า detect_type เป็น 'Photo Detection' ต้องไม่ให้กรอกค่า detection_time

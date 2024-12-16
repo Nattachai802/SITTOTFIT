@@ -12,123 +12,157 @@
         </div>
 
         <!-- Buttons Section -->
-        <div class="flex justify-between">
-            <button id="capture" onclick="captureFrame()" class="btn btn-primary bg-blue-500 hover:bg-blue-600 text-white rounded-lg px-6 py-2 shadow-lg">
-                Capture
+        <div class="flex justify-center space-x-4 mb-6">
+            <button id="start-button" onclick="startDetection()" class="btn btn-primary bg-blue-500 hover:bg-blue-600 text-white rounded-lg px-6 py-2 shadow-lg">
+                เริ่มตรวจจับ
             </button>
-            <button id="stop-button" onclick="stopDetection()" class="btn bg-red-500 hover:bg-red-600 text-white rounded-lg px-6 py-2 shadow-lg">
-                Stop Detection
-            </button>
-            <button id="next-page-button" onclick="goToNextStep()" class="btn btn-primary bg-green-500 hover:bg-green-600 text-white rounded-lg px-6 py-2 shadow-lg hidden">
-                Proceed to Next Step
+            <button id="stop-button" onclick="stopDetection()" class="btn bg-red-500 hover:bg-red-600 text-white rounded-lg px-6 py-2 shadow-lg" disabled>
+                หยุดตรวจจับ
             </button>
         </div>
 
         <!-- Results Section -->
         <div id="result" class="mt-8 bg-blue-100 p-6 rounded-lg shadow-md">
-            <h2 class="text-2xl font-semibold text-center text-blue-600 mb-4">Posture Detection Result</h2>
+            <h2 class="text-2xl font-semibold text-center text-blue-600 mb-4">ผลการตรวจจับท่าทาง</h2>
             <p id="result-message" class="text-center text-blue-700 text-lg"></p>
             <ul id="result-details" class="list-none mt-4 text-gray-700 space-y-2">
-                <!-- Results will be dynamically populated here -->
+                <!-- Results จะถูกเพิ่มที่นี่แบบไดนามิก -->
             </ul>
-            <div id="feedback-section" class="mt-6">
+            <div id="feedback-section" class="mt-6"></div>
         </div>
     </div>
 
-    <script>
-        let scoreList = [];
-        let startTime;
-        let timerInterval;
-        function getCSRFToken() {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.startsWith('csrftoken=')) {
-                    return cookie.substring('csrftoken='.length, cookie.length);
-                }
-            }
-            return null;
+<script>
+let detectionInterval = null;
+let accumulatedScores = [];
+const detectionFrequency = 5000; // จับภาพทุก 5 วินาที 
+let startTime;
+
+function getCSRFToken() {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.startsWith('csrftoken=')) {
+            return cookie.substring('csrftoken='.length, cookie.length);
         }
-        const csrfToken = getCSRFToken();
-        const videoElement = document.getElementById('video');
+    }
+    return null;
+}
+const csrfToken = getCSRFToken();
+const videoElement = document.getElementById('video');
+const startButton = document.getElementById('start-button');
+const stopButton = document.getElementById('stop-button');
 
-        // เปิดกล้องโดยใช้ navigator.mediaDevices.getUserMedia()
-        navigator.mediaDevices.getUserMedia({ video: true })
-            .then(stream => {
-                videoElement.srcObject = stream;
-            })
-            .catch(error => {
-                console.error("Error accessing webcam: ", error);
-            });
+// เปิดกล้อง
+navigator.mediaDevices.getUserMedia({ video: true })
+    .then(stream => {
+        videoElement.srcObject = stream;
+    })
+    .catch(error => {
+        console.error("ข้อผิดพลาดในการเข้าถึงเว็บแคม: ", error);
+    });
 
-        // ฟังก์ชั่นสำหรับจับภาพจากกล้องและส่งไปที่ Django
-        function captureFrame() {
-            const canvas = document.createElement('canvas');
-            canvas.width = 640;
-            canvas.height = 480;
-            const context = canvas.getContext('2d');
-            context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+// ฟังก์ชั่นจับภาพ
+function captureFrame() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 640;
+    canvas.height = 480;
+    const context = canvas.getContext('2d');
+    context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
 
-            // แปลงภาพเป็น base64 เพื่อส่งไปยัง Django
-            const imageData = canvas.toDataURL('image/png');
+    const imageData = canvas.toDataURL('image/png');
 
-            // ส่งข้อมูลภาพไปยัง Django ผ่าน fetch
-            fetch('/posture-detection/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrfToken,
-                },
-                body: JSON.stringify({ image: imageData })
-
-                
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    document.getElementById('result-message').textContent = `Error: ${data.error}`;
-                    document.getElementById('result-details').innerHTML = '';
-                } else {
-                    document.getElementById('result-message').textContent = data.message;
-                    document.getElementById('result-details').innerHTML = `
-                            <li><strong>Hip Angle:</strong> ${data.angles.hip_angle} degrees</li>
-                            <li><strong>Knee Angle:</strong> ${data.angles.knee_angle} degrees</li>
-                            <li><strong>Ankle Angle:</strong> ${data.angles.ankle_angle} degrees</li>
-                            <li><strong>Back Angle:</strong> ${data.angles.back_angle} degrees</li>
-                            <li><strong>Neck Angle:</strong> ${data.angles.neck_angle} degrees</li>
-                            <li><strong>Shoulder Angle:</strong> ${data.angles.shoulder_angle} degrees</li>
-                            <li><strong>Head Tilt Angle:</strong> ${data.angles.head_tilt_angle} degrees</li>
-                            <li><strong>Camera Alignment:</strong> ${data.angles.camera_aligned ? 'Aligned' : 'Not Aligned'}</li>
-                            <li><strong>Shoulder Symmetry:</strong> ${data.angles.shoulder_symmetry ? 'Symmetric' : 'Not Symmetric'}</li>
-                            <li><strong>Hip Symmetry:</strong> ${data.angles.hip_symmetry ? 'Symmetric' : 'Not Symmetric'}</li>
-                            <li><strong>Validation Message:</strong> ${data.angles.camera_alignment_message}</li>
-                            <li><strong>Score:</strong> ${data.score} / 100</li>
-                    `;
-                    const feedbackList = data.feedback.map(item => `<li>${item}</li>`).join('');
-                    document.getElementById('feedback-section').innerHTML = `
-                        <h3 class="text-lg font-semibold text-blue-600 mt-4">Feedback:</h3>
-                        <ul class="list-disc list-inside text-gray-700 mt-2">
-                            ${feedbackList}
-                        </ul>
-                    `;
-                    if (data.posture_valid) {
-                        document.getElementById('next-page-button').classList.remove('hidden');
-                    } else {
-                        document.getElementById('next-page-button').classList.add('hidden');
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('Error processing image:', error);
-                document.getElementById('result-message').textContent = 'An unexpected error occurred.';
-                document.getElementById('result-details').innerHTML = '';
-            });
+    // เพิ่ม detect_type: 'Side-part Detection' เพื่อบอกว่าเป็นการตรวจจับแบบต่อเนื่อง
+    fetch('/posture-detection/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken,
+        },
+        body: JSON.stringify({ image: imageData, detect_type: 'Side-part Detection' })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            console.error(`ข้อผิดพลาด: ${data.error}`);
+        } else {
+            // สะสมคะแนน
+            accumulatedScores.push(data.score);
+            updateResults(data);
         }
+    })
+    .catch(error => {
+        console.error('ข้อผิดพลาดในการประมวลผลภาพ:', error);
+    });
+}
 
-        // ฟังก์ชั่นสำหรับไปหน้าถัดไป
-        function goToNextStep() {
-            window.location.href = '/next-step/';
+function updateResults(data) {
+    document.getElementById('result-message').textContent = data.message;
+    document.getElementById('result-details').innerHTML = `
+        <li><strong>คะแนน:</strong> ${data.score} / 100</li>
+    `;
+    const feedbackList = data.feedback.map(item => `<li>${item}</li>`).join('');
+    document.getElementById('feedback-section').innerHTML = `
+        <h3 class="text-lg font-semibold text-blue-600 mt-4">ข้อเสนอแนะ:</h3>
+        <ul class="list-disc list-inside text-gray-700 mt-2">
+            ${feedbackList}
+        </ul>
+    `;
+}
+
+// เริ่มตรวจจับ
+function startDetection() {
+    startButton.disabled = true;
+    stopButton.disabled = false;
+    accumulatedScores = [];
+    detectionInterval = setInterval(captureFrame, detectionFrequency);
+    startTime = new Date();
+    captureFrame();
+}
+
+// หยุดตรวจจับ
+function stopDetection() {
+    startButton.disabled = false;
+    stopButton.disabled = true;
+    clearInterval(detectionInterval);
+
+    // คำนวณคะแนนเฉลี่ย
+    const averageScore = accumulatedScores.length > 0 ? 
+        Math.round(accumulatedScores.reduce((a, b) => a + b, 0) / accumulatedScores.length) : 0;
+
+     // คำนวณระยะเวลาในการตรวจจับ (หน่วยเป็นวินาที หรือมิลลิวินาที)
+    const endTime = new Date();
+    const detectionDuration = (endTime - startTime) / 1000; // วินาที (ถ้าอยากได้เป็นมิลลิวินาทีตัด /1000 ออก)
+
+    // ส่งคะแนนเฉลี่ยไปบันทึกในฐานข้อมูล
+    fetch('/save-detection-result/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken,
+        },
+        body: JSON.stringify({ score: averageScore, detection_duration: detectionDuration })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            console.error(`ข้อผิดพลาด: ${data.error}`);
+        } else {
+            console.log('บันทึกผลการตรวจจับเรียบร้อยแล้ว.');
         }
+    })
+    .catch(error => {
+        console.error('ข้อผิดพลาดในการบันทึกผลการตรวจจับ:', error);
+    });
+
+    // แสดงคะแนนเฉลี่ยบนหน้าจอ
+    document.getElementById('result-message').textContent = `หยุดการตรวจจับแล้ว คะแนนเฉลี่ย: ${averageScore} / 100`;
+    document.getElementById('result-details').innerHTML = `
+        <li><strong>คะแนนเฉลี่ย:</strong> ${averageScore} / 100</li>
+        <li><strong>ระยะเวลา:</strong> ${detectionDuration} วินาที</li>
+    `;
+    document.getElementById('feedback-section').innerHTML = '';
+}
     </script>
 </body>
 {% endblock %}

@@ -97,16 +97,16 @@ def calculate_angles(pose_landmarks):
     )
 
     return {
-        "hip_angle": hip_angle,
-        "back_angle": back_angle,
-        "neck_angle": neck_angle,
-        "shoulder_angle": shoulder_angle,
-        "head_tilt_angle": head_tilt_angle,
-        "knee_angle" : knee_angle ,
-        "camera_aligned": aligned,
-        "shoulder_symmetry": shoulder_symmetry,
-        "hip_symmetry": hip_symmetry,
-        "camera_alignment_message": message
+        "hip_angle": float(hip_angle),
+        "back_angle": float(back_angle),
+        "neck_angle": float(neck_angle),
+        "shoulder_angle": float(shoulder_angle),
+        "head_tilt_angle": float(head_tilt_angle),
+        "knee_angle": float(knee_angle),
+        "camera_aligned": bool(aligned),
+        "shoulder_symmetry": bool(shoulder_symmetry),
+        "hip_symmetry": bool(hip_symmetry),
+        "camera_alignment_message": str(message)
     }
 
 def calculate_score(angles):
