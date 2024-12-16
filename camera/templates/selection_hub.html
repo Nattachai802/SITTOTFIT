@@ -10,10 +10,10 @@
     </p>
 </div>
 <div class="flex justify-center items-center min-h-screen bg-orange-50">
-    
+  <div class='flex space-x-8'>
     <div class="card w-96 bg-orange-100 shadow-md border border-orange-200 rounded-lg">
       <figure class="px-10 pt-10">
-        <img src="http://127.0.0.1:8000/static/images/sitting.png" alt="Illustration" class="rounded-xl w-35 h-35 object-contain">
+        <img src="http://127.0.0.1:8000/static/images/sitting.png" alt="Illustration" class="rounded-xl w-27 h-27 object-contain mx-auto">
       </figure>
       <div class="card-body items-center text-center">
         <h2 class="card-title text-xl font-semibold text-orange-600">Side-Part Detection</h2>
@@ -27,6 +27,24 @@
         </div>
       </div>
     </div>
+    <div class="card w-96 bg-orange-100 shadow-md border border-orange-200 rounded-lg">
+      <figure class="px-10 pt-10 flex justify-center items-center">
+        <img src="http://127.0.0.1:8000/static/images/camera.png" alt="Illustration" class="rounded-xl w-35 h-35 object-contain mx-auto my-auto">
+      </figure>
+      <div class="card-body items-center text-center">
+        <br><br><br><br><br>
+        <h2 class="card-title text-xl font-semibold text-orange-600">Photo Detection</h2>
+        <p class="text-orange-700 text-sm">
+          ตรวจจับผ่านภาพถ่ายที่ผู้ใช้งานส่งเข้ามา เหมาะสำหรับคนที่ไม่มีพื้นที่ในการติดตั้งกล้อง
+        </p>
+        <div class="card-actions mt-4">
+          <a href= {% url 'camera:Image-upload' %} class="btn btn-primary bg-orange-500 hover:bg-orange-600 text-white rounded-lg px-6 py-2">
+            เริ่มทำการตรวจสอบ
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
   </div>
   
 {% endblock %}

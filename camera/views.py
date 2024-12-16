@@ -10,6 +10,9 @@ from django.views.generic import TemplateView
 from ultralytics import YOLO
 from camera.calibrate_func import *
 import mediapipe as mp
+from .utils.posture_analysis import calculate_angles , calculate_score
+from base.models import PostureDetection , UserUsageHistory
+from django.utils import timezone
 
 
 class CameraDetectionView(TemplateView):
@@ -18,8 +21,15 @@ class CameraDetectionView(TemplateView):
 class Selection_hubView(TemplateView):
     template_name = 'selection_hub.html'
 
+class Detection_View(TemplateView):
+    template_name = 'detection.html'
+
+class Image_View(TemplateView):
+    template_name = 'upload_image.html'
 
 # โหลดโมเดล YOLOv8
+
+
 model = YOLO('yolov8n.pt')
 mp_pose = mp.solutions.pose
 pose = mp_pose.Pose()
@@ -132,3 +142,59 @@ def process_image(request):
             })
         except Exception as e:
             return JsonResponse({'error': f"Unexpected error: {str(e)}"}, status=500)
+
+
+def posture_detection(request):
+    if request.method == 'POST':
+        try:
+            # รับข้อมูลภาพจาก request
+            data = json.loads(request.body)
+            image_data = data.get('image')
+            detect_type = data.get('detect_type', 'Photo Detection')  # กำหนดค่าเริ่มต้นเป็น 'Photo Detection'
+
+            # ตรวจสอบ detect_type ที่ถูกต้อง
+            if detect_type not in ['Photo Detection', 'Side-part Detection']:
+                return JsonResponse({'error': 'Invalid detection type.'}, status=400)
+
+            # แปลง Base64 เป็นภาพ
+            img_data = base64.b64decode(image_data.split(',')[1])
+            img = Image.open(BytesIO(img_data))
+            img = np.array(img)
+
+            # ตรวจจับและคำนวณมุมกับคะแนน
+            mp_pose = mp.solutions.pose
+            pose = mp_pose.Pose()
+            img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            results_pose = pose.process(img_rgb)
+
+            if not results_pose.pose_landmarks:
+                return JsonResponse({'error': 'Pose landmarks not detected'}, status=400)
+
+            angles = calculate_angles(results_pose.pose_landmarks)
+            score, feedback = calculate_score(angles)
+
+            # บันทึก PostureDetection
+            posture_detection_instance = PostureDetection.objects.create(
+                user=request.user,
+                score=score
+            )
+            print(detect_type)
+
+            # บันทึก UserUsageHistory
+            detection_time = timezone.now() if detect_type == 'Side-part Detection' else None
+            UserUsageHistory.objects.create(
+                posture_detection=posture_detection_instance,
+                detect_type=detect_type,
+                detection_time=detection_time
+            )
+
+            # ส่งผลลัพธ์กลับไป
+            return JsonResponse({
+                "message": "Posture detected successfully",
+                "angles": angles,
+                "score": score,
+                "feedback": feedback
+            })
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)

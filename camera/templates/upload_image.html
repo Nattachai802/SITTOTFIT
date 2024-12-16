@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block main %}
+<body class="bg-gray-50 font-sans">
+
+    <!-- Container -->
+    <div class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-md mt-12">
+        <h1 class="text-3xl font-bold text-center text-blue-600 mb-6">Upload Image for Posture Detection</h1>
+
+        <!-- Image Upload Form -->
+        <form id="upload-form" enctype="multipart/form-data" class="flex flex-col items-center">
+            <input type="file" id="imageInput" accept="image/*" class="mb-4 p-2 border rounded-lg shadow-sm" onchange="previewImage()">
+            <!-- Preview Image -->
+            <div id="image-preview" class="mb-4 hidden">
+                <img id="preview-img" src="" alt="Image Preview" class="max-w-xs rounded-lg shadow-lg">
+            </div>
+            <button type="button" onclick="uploadImage('Photo Detection')" class="bg-blue-500 hover:bg-blue-600 text-white font-bold px-6 py-2 rounded-lg shadow-lg">
+                Upload & Process Image
+            </button>
+        </form>
+
+        <!-- Results Section -->
+        <div id="result" class="mt-8 bg-blue-100 p-6 rounded-lg shadow-md hidden">
+            <h2 class="text-2xl font-semibold text-center text-blue-600 mb-4">Posture Detection Result</h2>
+            <p id="result-message" class="text-center text-blue-700 text-lg"></p>
+            <ul id="result-details" class="list-none mt-4 text-gray-700 space-y-2"></ul>
+            <div id="feedback-section" class="mt-4"></div>
+        </div>
+    </div>
+
+    <script>
+        function getCSRFToken() {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.startsWith('csrftoken=')) {
+                    return cookie.substring('csrftoken='.length, cookie.length);
+                }
+            }
+            return null;
+        }
+
+        const csrfToken = getCSRFToken();
+
+        // ฟังก์ชันแสดง Preview Image
+        function previewImage() {
+            const fileInput = document.getElementById('imageInput');
+            const previewContainer = document.getElementById('image-preview');
+            const previewImage = document.getElementById('preview-img');
+
+            const file = fileInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImage.src = e.target.result;
+                    previewContainer.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                previewImage.src = '';
+                previewContainer.classList.add('hidden');
+            }
+        }
+
+        function uploadImage(detectType) {
+            const fileInput = document.getElementById('imageInput');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert("Please upload an image!");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onloadend = function() {
+                const base64Image = reader.result;
+
+                fetch('/posture-detection/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken,
+                    },
+                    body: JSON.stringify({ image: base64Image , detect_type: detectType})
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        document.getElementById('result-message').textContent = `Error: ${data.error}`;
+                        document.getElementById('result-details').innerHTML = '';
+                        document.getElementById('result').classList.remove('hidden');
+                    } else {
+                        document.getElementById('result-message').textContent = data.message;
+                        document.getElementById('result-details').innerHTML = `
+                            <li><strong>Hip Angle:</strong> ${data.angles.hip_angle} degrees</li>
+                            <li><strong>Back Angle:</strong> ${data.angles.back_angle} degrees</li>
+                            <li><strong>Neck Angle:</strong> ${data.angles.neck_angle} degrees</li>
+                            <li><strong>Head Tilt Angle:</strong> ${data.angles.head_tilt_angle} degrees</li>
+                            <li><strong>Shoulder Symmetry:</strong> ${data.angles.shoulder_symmetry ? 'Symmetric' : 'Not Symmetric'}</li>
+                            <li><strong>Hip Symmetry:</strong> ${data.angles.hip_symmetry ? 'Symmetric' : 'Not Symmetric'}</li>
+                            <li><strong>Score:</strong> ${data.score} / 100</li>
+                        `;
+                        const feedbackList = data.feedback.map(item => `<li>${item}</li>`).join('');
+                        document.getElementById('feedback-section').innerHTML = `
+                            <h3 class="text-lg font-semibold text-blue-600 mt-4">Feedback:</h3>
+                            <ul class="list-disc list-inside text-gray-700 mt-2">${feedbackList}</ul>
+                        `;
+                        document.getElementById('result').classList.remove('hidden');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('result-message').textContent = 'An unexpected error occurred.';
+                    document.getElementById('result-details').innerHTML = '';
+                    document.getElementById('result').classList.remove('hidden');
+                });
+            };
+            reader.readAsDataURL(file);
+        }
+    </script>
+</body>
+{% endblock %}

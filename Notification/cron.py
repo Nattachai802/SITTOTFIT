@@ -34,6 +34,7 @@ def send_notifications():
 
 # เพิ่ม JobStore และ Job
 def start_scheduler():
+    print('start_corn')
     try:
         # ถ้าหาก scheduler เริ่มไปแล้ว ให้ไม่เริ่มใหม่
         if not scheduler.running:

@@ -12,9 +12,12 @@
         </div>
 
         <!-- Capture Button -->
-        <div class="flex justify-center">
+        <div class="flex justify-between">
             <button id="capture" onclick="captureFrame()" class="btn btn-primary bg-orange-500 hover:bg-orange-600 text-white rounded-lg px-6 py-2 shadow-lg">
                 Capture
+            </button>
+            <button id="next-page-button" onclick="goToNextPage()" class="btn btn-primary bg-green-500 hover:bg-green-600 text-white rounded-lg px-6 py-2 shadow-lg hidden">
+                ไปหน้าถัดไป
             </button>
         </div>
 
@@ -41,6 +44,7 @@
         }
         const csrfToken = getCSRFToken();
         const videoElement = document.getElementById('video');
+        const nextPageButton = document.getElementById('next-page-button');
 
         // เปิดกล้องโดยใช้ navigator.mediaDevices.getUserMedia()
         navigator.mediaDevices.getUserMedia({ video: true })
@@ -76,6 +80,7 @@
                 if (data.error) {
                     document.getElementById('result-message').textContent = `Error: ${data.error}`;
                     document.getElementById('result-details').innerHTML = '';
+                    nextPageButton.classList.add('hidden');
                 } else {
                     document.getElementById('result-message').textContent = data.message;
                     document.getElementById('result-details').innerHTML = `
@@ -92,13 +97,25 @@
                         <li><strong>Is Sitting on Chair:</strong> ${data.is_sitting ? 'Yes' : 'No'}</li>
                         <li><strong>Is Fullbody? :</strong> ${data.is_full_body_detected ? 'Yes' : 'No'}</li>
                     `;
+                    // ตรวจสอบเงื่อนไข
+                    if (data.is_sitting && data.is_full_body_detected && !data.is_low_brightness) {
+                        nextPageButton.classList.remove('hidden');
+                    } else {
+                        nextPageButton.classList.add('hidden');
+                    }
                 }
             })
             .catch(error => {
                 console.error('Error processing image:', error);
                 document.getElementById('result-message').textContent = 'An unexpected error occurred.';
                 document.getElementById('result-details').innerHTML = '';
+                nextPageButton.classList.add('hidden');
             });
+        }
+
+        // ฟังก์ชั่นสำหรับเปลี่ยนไปหน้าถัดไป
+        function goToNextPage() {
+            window.location.href = '/Estimation/';
         }
     </script>
 </body>
