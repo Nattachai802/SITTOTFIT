@@ -11,6 +11,9 @@ from django.shortcuts import redirect, render
 from django.http import Http404
 from base.models import *
 from base.form import *
+from django.core.mail import send_mail
+from django.shortcuts import render
+from django.http import HttpResponse
 
 def classify_bmi(bmi):
     if bmi < 16:
@@ -52,24 +55,23 @@ class Userloginview(LoginView):
     def get_success_url(self):
         return reverse_lazy('base:home')
 
-class HomepageView(LoginRequiredMixin,ListView):
+class HomepageView(LoginRequiredMixin, ListView):
     model = UserInfomation  # โมเดลหลักที่ใช้สำหรับ ListView
     template_name = 'account.html'
     context_object_name = 'User_items'
+    
     def get_queryset(self):
         return UserInfomation.objects.filter(id=self.request.user.id)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.request.user
-        context['user'] = user
-        personal_health = PersonalHealthInformation.objects.filter(user=user).first()
+        personal_info = PersonalInformation.objects.filter(user=user).first()
         context['Personal_items'] = PersonalInformation.objects.filter(user=user)
-        context['Health_items'] = PersonalHealthInformation.objects.filter(user=user)
 
-        if personal_health and personal_health.height and personal_health.weight:
-            height_m = personal_health.height/100
-            bmi = round(personal_health.weight / (height_m ** 2), 2)
+        if personal_info and personal_info.height and personal_info.weight:
+            height_m = personal_info.height / 100
+            bmi = round(personal_info.weight / (height_m ** 2), 2)
             context['bmi'] = bmi
             context['bmi_category'] = classify_bmi(bmi)
         else:
@@ -77,6 +79,7 @@ class HomepageView(LoginRequiredMixin,ListView):
             context['bmi_category'] = "Not Available"
 
         return context
+
 
 class ResetPasswordview(SuccessMessageMixin,PasswordResetView):
     template_name = r'Authen/password_reset.html'
@@ -90,7 +93,7 @@ class ResetPasswordview(SuccessMessageMixin,PasswordResetView):
 
 class PersonalInformationUpdateView(LoginRequiredMixin, UpdateView):
     model = PersonalInformation
-    fields = ['goal', 'job_name', 'job_type', 'job_hours', 'break_hours']
+    fields = ['goal', 'job_name', 'job_type', 'job_hours', 'break_hours', 'age', 'height', 'weight', 'has_pain']
     template_name = 'update_user_data.html'  # ใช้ Template เดียวกัน
     success_url = reverse_lazy('base:home')
 
@@ -101,22 +104,6 @@ class PersonalInformationUpdateView(LoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form_type'] = 'personal_information'  # ระบุประเภทฟอร์ม
-        return context
-
-
-class PersonalHealthInformationUpdateView(LoginRequiredMixin, UpdateView):
-    model = PersonalHealthInformation
-    fields = ['age', 'height', 'weight', 'has_pain']
-    template_name = 'update_user_data.html'  # ใช้ Template เดียวกัน
-    success_url = reverse_lazy('base:home')
-
-    def get_object(self, queryset=None):
-        obj, created = PersonalHealthInformation.objects.get_or_create(user=self.request.user)
-        return obj
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['form_type'] = 'personal_health_information'  # ระบุประเภทฟอร์ม
         return context
 
 class ChangeUsernameView(LoginRequiredMixin,SuccessMessageMixin,UpdateView):
@@ -139,3 +126,28 @@ class ChangePasswordView(LoginRequiredMixin, SuccessMessageMixin, PasswordChange
         response = super().form_valid(form)
         update_session_auth_hash(self.request, self.object)
         return response
+
+def contact_view(request):
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            name = form.cleaned_data['name']
+            email = form.cleaned_data['email']
+            message = form.cleaned_data['message']
+            full_message = f"Message from {name} ({email}):\n\n{message}"
+
+            # ส่งอีเมล
+            send_mail(
+                'Contact from User',
+                full_message,
+                email,  # Email ผู้ส่ง
+                ['sittofit.noreply@gmail.com'],  # Email ทีมพัฒนา
+            )
+            return HttpResponse("Thank you for contacting us.")
+    else:
+        form = ContactForm()
+
+    return render(request, 'contact.html', {'form': form})
+
+class InstructionsView(TemplateView):
+    template_name = 'Howto.html'

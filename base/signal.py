@@ -1,6 +1,6 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from .models import PostureDetection, UserUsageHistory
+from .models import PostureDetection
 '''
 @receiver(post_save, sender=PostureDetection)
 def create_user_usage_history(sender, instance, created, **kwargs):

@@ -1,14 +1,17 @@
 {% extends "base.html" %}
 {% block main %}
 <body class="bg-gray-50 font-sans">
-
     <!-- Container -->
     <div class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-md mt-12">
         <h1 class="text-3xl font-bold text-center text-blue-600 mb-6">Posture Detection</h1>
 
-        <!-- Video Section -->
-        <div class="flex justify-center mb-6">
-            <video id="video" width="640" height="480" autoplay class="border-4 border-blue-200 rounded-lg shadow-lg"></video>
+        <!-- Video Section with Camera Selection -->
+        <div class="flex flex-col items-center mb-6">
+            <video id="video" width="640" height="480" autoplay class="border-4 border-blue-200 rounded-lg shadow-lg mb-4"></video>
+            <!-- Camera Selection Dropdown -->
+            <select id="cameraSelect" class="w-64 border rounded-lg px-4 py-2 shadow-md mb-4">
+                <option value="">Select Camera</option>
+            </select>
         </div>
 
         <!-- Buttons Section -->
@@ -25,18 +28,23 @@
         <div id="result" class="mt-8 bg-blue-100 p-6 rounded-lg shadow-md">
             <h2 class="text-2xl font-semibold text-center text-blue-600 mb-4">ผลการตรวจจับท่าทาง</h2>
             <p id="result-message" class="text-center text-blue-700 text-lg"></p>
-            <ul id="result-details" class="list-none mt-4 text-gray-700 space-y-2">
-                <!-- Results จะถูกเพิ่มที่นี่แบบไดนามิก -->
-            </ul>
+            <ul id="result-details" class="list-none mt-4 text-gray-700 space-y-2"></ul>
             <div id="feedback-section" class="mt-6"></div>
         </div>
     </div>
 
 <script>
+let currentStream;
 let detectionInterval = null;
 let accumulatedScores = [];
-const detectionFrequency = 5000; // จับภาพทุก 5 วินาที 
+const detectionFrequency = 5000;
 let startTime;
+const STORAGE_KEY = 'preferredCameraId';
+
+const videoElement = document.getElementById('video');
+const cameraSelect = document.getElementById('cameraSelect');
+const startButton = document.getElementById('start-button');
+const stopButton = document.getElementById('stop-button');
 
 function getCSRFToken() {
     const cookies = document.cookie.split(';');
@@ -48,21 +56,89 @@ function getCSRFToken() {
     }
     return null;
 }
-const csrfToken = getCSRFToken();
-const videoElement = document.getElementById('video');
-const startButton = document.getElementById('start-button');
-const stopButton = document.getElementById('stop-button');
 
-// เปิดกล้อง
-navigator.mediaDevices.getUserMedia({ video: true })
-    .then(stream => {
+// ฟังก์ชันสำหรับจัดการ Local Storage
+function savePreferredCamera(deviceId) {
+    localStorage.setItem(STORAGE_KEY, deviceId);
+}
+
+function getPreferredCamera() {
+    return localStorage.getItem(STORAGE_KEY);
+}
+
+async function listCameras() {
+    try {
+        await navigator.mediaDevices.getUserMedia({ video: true });
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoDevices = devices.filter(device => device.kind === 'videoinput');
+        cameraSelect.innerHTML = '';
+
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.text = 'Select Camera';
+        cameraSelect.appendChild(defaultOption);
+
+        const preferredCameraId = getPreferredCamera();
+
+        videoDevices.forEach((device, index) => {
+            const option = document.createElement('option');
+            option.value = device.deviceId;
+            option.text = device.label || `Camera ${index + 1}`;
+            if (device.deviceId === preferredCameraId) {
+                option.selected = true;
+            }
+            cameraSelect.appendChild(option);
+        });
+
+        if (preferredCameraId && videoDevices.some(device => device.deviceId === preferredCameraId)) {
+            startStream(preferredCameraId);
+        } else if (videoDevices.length > 0) {
+            startStream(videoDevices[0].deviceId);
+        }
+    } catch (error) {
+        console.error('Error listing cameras:', error);
+        alert('Unable to access camera. Please check your camera permissions.');
+    }
+}
+
+async function startStream(deviceId) {
+    if (currentStream) {
+        currentStream.getTracks().forEach(track => track.stop());
+    }
+
+    try {
+        const constraints = {
+            video: deviceId ? { deviceId: { exact: deviceId } } : true
+        };
+        
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        currentStream = stream;
         videoElement.srcObject = stream;
-    })
-    .catch(error => {
-        console.error("ข้อผิดพลาดในการเข้าถึงเว็บแคม: ", error);
-    });
+        
+        if (deviceId) {
+            savePreferredCamera(deviceId);
+        }
+    } catch (error) {
+        console.error('Error starting stream:', error);
+        alert('Error accessing camera. Please try another camera or check permissions.');
+    }
+}
 
-// ฟังก์ชั่นจับภาพ
+// Event Listeners
+document.addEventListener('DOMContentLoaded', () => {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert('Your browser does not support camera access');
+        return;
+    }
+    listCameras();
+});
+
+cameraSelect.addEventListener('change', (e) => {
+    if (e.target.value) {
+        startStream(e.target.value);
+    }
+});
+
 function captureFrame() {
     const canvas = document.createElement('canvas');
     canvas.width = 640;
@@ -72,12 +148,11 @@ function captureFrame() {
 
     const imageData = canvas.toDataURL('image/png');
 
-    // เพิ่ม detect_type: 'Side-part Detection' เพื่อบอกว่าเป็นการตรวจจับแบบต่อเนื่อง
     fetch('/posture-detection/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': csrfToken,
+            'X-CSRFToken': getCSRFToken(),
         },
         body: JSON.stringify({ image: imageData, detect_type: 'Side-part Detection' })
     })
@@ -86,7 +161,6 @@ function captureFrame() {
         if (data.error) {
             console.error(`ข้อผิดพลาด: ${data.error}`);
         } else {
-            // สะสมคะแนน
             accumulatedScores.push(data.score);
             updateResults(data);
         }
@@ -110,7 +184,6 @@ function updateResults(data) {
     `;
 }
 
-// เริ่มตรวจจับ
 function startDetection() {
     startButton.disabled = true;
     stopButton.disabled = false;
@@ -120,26 +193,22 @@ function startDetection() {
     captureFrame();
 }
 
-// หยุดตรวจจับ
 function stopDetection() {
     startButton.disabled = false;
     stopButton.disabled = true;
     clearInterval(detectionInterval);
 
-    // คำนวณคะแนนเฉลี่ย
     const averageScore = accumulatedScores.length > 0 ? 
         Math.round(accumulatedScores.reduce((a, b) => a + b, 0) / accumulatedScores.length) : 0;
 
-     // คำนวณระยะเวลาในการตรวจจับ (หน่วยเป็นวินาที หรือมิลลิวินาที)
     const endTime = new Date();
-    const detectionDuration = (endTime - startTime) / 1000; // วินาที (ถ้าอยากได้เป็นมิลลิวินาทีตัด /1000 ออก)
+    const detectionDuration = (endTime - startTime) / 1000;
 
-    // ส่งคะแนนเฉลี่ยไปบันทึกในฐานข้อมูล
     fetch('/save-detection-result/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': csrfToken,
+            'X-CSRFToken': getCSRFToken(),
         },
         body: JSON.stringify({ score: averageScore, detection_duration: detectionDuration })
     })
@@ -148,14 +217,13 @@ function stopDetection() {
         if (data.error) {
             console.error(`ข้อผิดพลาด: ${data.error}`);
         } else {
-            console.log('บันทึกผลการตรวจจับเรียบร้อยแล้ว.');
+            console.log('บันทึกผลการตรวจจับเรียบร้อยแล้ว');
         }
     })
     .catch(error => {
         console.error('ข้อผิดพลาดในการบันทึกผลการตรวจจับ:', error);
     });
 
-    // แสดงคะแนนเฉลี่ยบนหน้าจอ
     document.getElementById('result-message').textContent = `หยุดการตรวจจับแล้ว คะแนนเฉลี่ย: ${averageScore} / 100`;
     document.getElementById('result-details').innerHTML = `
         <li><strong>คะแนนเฉลี่ย:</strong> ${averageScore} / 100</li>
@@ -163,6 +231,6 @@ function stopDetection() {
     `;
     document.getElementById('feedback-section').innerHTML = '';
 }
-    </script>
+</script>
 </body>
 {% endblock %}

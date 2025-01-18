@@ -237,45 +237,136 @@
 
                     </script>
                 </div>
+                
                 <div class="bg-orange-400 p-6 rounded-lg shadow">
-                    <h2 class="text-2xl font-bold text-orange-100 mb-3">ประวัติการใช้งานในวันนี้</h2>
-                    <div class="overflow-x-auto">
-                        <table class="table-auto w-full text-left border-collapse bg-orange-100 rounded-lg">
-                            <thead>
-                                <tr class="bg-orange-300 text-orange-900">
-                                    <th class="px-4 py-2">เวลาที่เข้าใช้งาน</th>
-                                    <th class="px-4 py-2">ระยะเวลาการใช้งาน</th>
-                                    <th class="px-4 py-2">คะแนนที่ได้</th>
-                                </tr>
-                            </thead>
-                            <tbody id="usage-history">
-                                <script>
-                                    fetch('/dashboard/today-usage-history/')
-                                    .then(response => response.json())
-                                    .then(data => {
-                                        const tableBody = document.getElementById('usage-history');
-                                        tableBody.innerHTML = ''; // ล้างข้อมูลก่อน
-
-                                        data.history.forEach(row => {
-                                            const tr = document.createElement('tr');
-                                            tr.className = 'border-b border-orange-300';
-                                        
-                                            tr.innerHTML = `
-                                                <td class="px-4 py-2 text-orange-800">${row.time}</td>
-                                                <td class="px-4 py-2 text-orange-800">${row.duration}</td>
-                                                <td class="px-4 py-2 text-orange-800">${row.score}</td>
-                                            `;
-                                        
-                                            tableBody.appendChild(tr);
-                                        });
-                                    })
-                                    .catch(error => console.error('Error fetching usage history:', error));
-
-                                </script>
-                            </tbody>
-                        </table>
-                    </div>
+                    <h2 class="text-2xl font-bold text-orange-100 mb-3">Heatmap ความหนาแน่นการใช้งาน</h2>
+                    <div id="heatmapChart" class="w-full"></div>
                 </div>
+
+                <script>
+                    fetch('/dashboard/heatmap-data/')
+                    .then(response => response.json())
+                    .then(data => {
+                        const options = {
+                            chart: {
+                                type: 'heatmap',
+                                height: 300,
+                            },
+                            series: data.series.map(day => ({
+                                name: day.name,
+                                data: day.data.map(item => item.count)
+                            })),
+                            xaxis: {
+                                categories: ['เช้า', 'สาย', 'บ่าย', 'เย็น'],
+                                title: { text: 'ช่วงเวลา' }
+                            },
+                            yaxis: {
+                                categories: data.days,
+                                title: { text: 'วัน' }
+                            },
+                            dataLabels: {
+                                enabled: false // ปิดการแสดงตัวเลขบน Heatmap
+                            },
+                            colors: ['#FFB84D', '#FF6F61', '#D0021B'],
+                            tooltip: {
+                                y: {
+                                    formatter: (value) => `${value} ครั้ง`
+                                }
+                            }
+                        };
+                
+                        const chart = new ApexCharts(document.querySelector("#heatmapChart"), options);
+                        chart.render();
+                    })
+                    .catch(error => console.error('Error fetching heatmap data:', error));
+                
+                </script>
+                
+                <div id="chartaaa" style="max-width: 700px; margin: 0 auto;"></div>
+
+                <script>
+                    // เรียก API เพื่อดึงข้อมูล
+                    fetch('/detailed-usage-data/')
+                        .then(response => response.json())
+                        .then(data => {
+                            const usageData = data.usage_data;
+            
+                            // สร้างข้อมูลสำหรับ 24 ชั่วโมง (0-23)
+                            const hours = Array.from({ length: 24 }, (_, i) => `${i}:00`); // [0:00, 1:00, ..., 23:00]
+                            const scores = Array(24).fill(null); // ค่าเริ่มต้นเป็น null
+            
+                            // ใส่คะแนนในชั่วโมงที่มีข้อมูล
+                            usageData.forEach(item => {
+                                const startHour = parseInt(item.start_time.split(':')[0], 10);
+                                scores[startHour] = item.score; // แทนที่ค่าชั่วโมงที่มีคะแนน
+                            });
+            
+                            // กำหนดค่าของกราฟ ApexCharts
+                            const options = {
+                                chart: {
+                                    type: 'line',
+                                    height: 400
+                                },
+                                series: [{
+                                    name: 'Score',
+                                    data: scores
+                                }],
+                                xaxis: {
+                                    categories: hours, // กำหนดแกน X เป็นเวลา
+                                    title: {
+                                        text: 'Hour of the Day'
+                                    },
+                                    labels: {
+                                        rotate: -45,
+                                        style: {
+                                            fontSize: '12px'
+                                        }
+                                    }
+                                },
+                                yaxis: {
+                                    title: {
+                                        text: 'Score'
+                                    },
+                                    min: 0,
+                                    max: 100
+                                },
+                                title: {
+                                    text: 'Hourly Posture Scores',
+                                    align: 'center'
+                                },
+                                stroke: {
+                                    curve: 'smooth',
+                                    width: 2
+                                },
+                                markers: {
+                                    size: 5,
+                                    hover: {
+                                        size: 7
+                                    }
+                                },
+                                tooltip: {
+                                    enabled: true,
+                                    custom: function({ series, seriesIndex, dataPointIndex }) {
+                                        const score = series[seriesIndex][dataPointIndex];
+                                        const hour = hours[dataPointIndex];
+                                        if (score === null) return null; // ไม่มีข้อมูลสำหรับจุดนี้
+                                        return `
+                                            <div style="padding: 10px; background: white; border: 1px solid #ddd; border-radius: 4px;">
+                                                <p><strong>Time:</strong> ${hour}</p>
+                                                <p><strong>Score:</strong> ${score}</p>
+                                            </div>
+                                        `;
+                                    }
+                                },
+                                connectNulls: true // ให้เส้นเชื่อมต่อเมื่อมี null
+                            };
+            
+                            // แสดงกราฟใน div ที่มี id="chart"
+                            const chart = new ApexCharts(document.querySelector("#chartaaa"), options);
+                            chart.render();
+                        })
+                        .catch(error => console.error('Error fetching data:', error));
+                </script> 
             </div>
         </div>
     </div>

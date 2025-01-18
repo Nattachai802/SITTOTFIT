@@ -98,16 +98,9 @@ WSGI_APPLICATION = "STF.wsgi.application"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    "sqlite3": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-        'OPTIONS': {
-            'timeout': 40,  # เพิ่มเวลา timeout เพื่อหลีกเลี่ยงการล็อก
-        }
-    },
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'mydb',  # ชื่อฐานข้อมูล
+        'NAME': 'stfdb',  # ชื่อฐานข้อมูล
         'USER': 'root',  # ชื่อผู้ใช้
         'PASSWORD': '1234',  # รหัสผ่าน
         'HOST': 'localhost',  # ที่อยู่ของ MySQL
@@ -140,11 +133,11 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Asia/Bangkok"
 
 USE_I18N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)

@@ -1,4 +1,3 @@
-
 from django.http import JsonResponse
 import base64
 from io import BytesIO
@@ -182,14 +181,12 @@ def posture_detection(request):
                 # สมมติว่า UserInfomation เชื่อมกับ User อย่างถูกต้อง
                 posture_detection_instance = PostureDetection.objects.create(
                     user=request.user,
-                    score=score,
-                    detection_time=None  # Photo Detection ไม่มีการกำหนดเวลา
+                    score=score
                 )
 
                 UserUsageHistory.objects.create(
                     posture_detection=posture_detection_instance,
-                    detect_type='Photo Detection',
-                    detection_time=None
+                    detect_type='Photo Detection'
                 )
 
             # หากเป็น Side-part Detection (Continuous Detection) ไม่บันทึกฐานข้อมูลตอนนี้
@@ -225,8 +222,7 @@ def save_detection_result(request):
 
             posture_detection_instance = PostureDetection.objects.create(
                 user=request.user,
-                score=score,
-                detection_time=detection_duration 
+                score=score
             )
 
             UserUsageHistory.objects.create(

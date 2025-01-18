@@ -1,10 +1,17 @@
 {% extends "base.html" %}
 {% block main %}
 <body class="bg-orange-50 font-sans">
-
     <!-- Container -->
     <div class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-md mt-12">
         <h1 class="text-3xl font-bold text-center text-orange-600 mb-6">Camera Detection</h1>
+
+        <!-- Camera Selection Dropdown -->
+        <div class="mb-4">
+            <label for="cameraSelect" class="block text-orange-600 font-medium mb-2">เลือกกล้อง:</label>
+            <select id="cameraSelect" class="w-full p-2 border border-orange-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+                <option value="">กำลังโหลดรายการกล้อง...</option>
+            </select>
+        </div>
 
         <!-- Video Section -->
         <div class="flex justify-center mb-6">
@@ -32,6 +39,78 @@
     </div>
 
     <script>
+        let currentStream = null;
+        const videoElement = document.getElementById('video');
+        const cameraSelect = document.getElementById('cameraSelect');
+        const nextPageButton = document.getElementById('next-page-button');
+        const STORAGE_KEY = 'preferredCameraId';
+
+        function savePreferredCamera(deviceId) {
+            localStorage.setItem(STORAGE_KEY, deviceId);
+        }
+        
+        function getPreferredCamera() {
+            return localStorage.getItem(STORAGE_KEY);
+        }
+
+        // ฟังก์ชั่นสำหรับดึงรายการกล้องที่มีทั้งหมด
+        async function getAvailableCameras() {
+            try {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const videoDevices = devices.filter(device => device.kind === 'videoinput');
+                
+                // เคลียร์ตัวเลือกเดิม
+                cameraSelect.innerHTML = '';
+                
+                // เพิ่มตัวเลือกกล้องทั้งหมดที่พบ
+                videoDevices.forEach(device => {
+                    const option = document.createElement('option');
+                    option.value = device.deviceId;
+                    option.text = device.label || `Camera ${cameraSelect.length + 1}`;
+                    cameraSelect.appendChild(option);
+                });
+
+                // ถ้าพบกล้อง ให้เริ่มใช้กล้องแรก
+                if (videoDevices.length > 0) {
+                    startCamera(videoDevices[0].deviceId);
+                }
+            } catch (error) {
+                console.error("Error getting cameras:", error);
+            }
+        }
+
+        // ฟังก์ชั่นสำหรับเริ่มการใช้งานกล้อง
+        async function startCamera(deviceId) {
+            // หยุดสตรีมเดิมถ้ามีการใช้งานอยู่
+            if (currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
+            }
+
+            try {
+                const constraints = {
+                    video: {
+                        deviceId: deviceId ? { exact: deviceId } : undefined
+                    }
+                };
+
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                currentStream = stream;
+                videoElement.srcObject = stream;
+            } catch (error) {
+                console.error("Error starting camera:", error);
+            }
+        }
+
+        // เพิ่ม event listener สำหรับการเปลี่ยนกล้อง
+        cameraSelect.addEventListener('change', (event) => {
+            startCamera(event.target.value);
+        });
+
+        // เรียกฟังก์ชั่นเพื่อดึงรายการกล้องเมื่อโหลดหน้า
+        document.addEventListener('DOMContentLoaded', () => {
+            getAvailableCameras();
+        });
+
         function getCSRFToken() {
             const cookies = document.cookie.split(';');
             for (let i = 0; i < cookies.length; i++) {
@@ -43,19 +122,8 @@
             return null;
         }
         const csrfToken = getCSRFToken();
-        const videoElement = document.getElementById('video');
-        const nextPageButton = document.getElementById('next-page-button');
 
-        // เปิดกล้องโดยใช้ navigator.mediaDevices.getUserMedia()
-        navigator.mediaDevices.getUserMedia({ video: true })
-            .then(stream => {
-                videoElement.srcObject = stream;
-            })
-            .catch(error => {
-                console.error("Error accessing webcam: ", error);
-            });
-
-        // ฟังก์ชั่นสำหรับจับภาพจากกล้องและส่งไปที่ Django
+        // ฟังก์ชั่นสำหรับจับภาพจากกล้องและส่งไปที่ Django (เหมือนเดิม)
         function captureFrame() {
             const canvas = document.createElement('canvas');
             canvas.width = 640;
@@ -63,10 +131,8 @@
             const context = canvas.getContext('2d');
             context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
 
-            // แปลงภาพเป็น base64 เพื่อส่งไปยัง Django
             const imageData = canvas.toDataURL('image/png');
 
-            // ส่งข้อมูลภาพไปยัง Django ผ่าน fetch
             fetch('/process_image/', {
                 method: 'POST',
                 headers: {
@@ -97,7 +163,6 @@
                         <li><strong>Is Sitting on Chair:</strong> ${data.is_sitting ? 'Yes' : 'No'}</li>
                         <li><strong>Is Fullbody? :</strong> ${data.is_full_body_detected ? 'Yes' : 'No'}</li>
                     `;
-                    // ตรวจสอบเงื่อนไข
                     if (data.is_sitting && data.is_full_body_detected && !data.is_low_brightness) {
                         nextPageButton.classList.remove('hidden');
                     } else {
@@ -113,7 +178,7 @@
             });
         }
 
-        // ฟังก์ชั่นสำหรับเปลี่ยนไปหน้าถัดไป
+        // ฟังก์ชั่นสำหรับเปลี่ยนไปหน้าถัดไป (เหมือนเดิม)
         function goToNextPage() {
             window.location.href = '/Estimation/';
         }

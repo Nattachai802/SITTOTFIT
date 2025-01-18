@@ -28,40 +28,35 @@ class PersonalInformation(models.Model):
     job_type = models.CharField(max_length=100, null=True, blank=True)
     job_hours = models.FloatField(null=True, blank=True)
     break_hours = models.FloatField(null=True, blank=True)
-
-    def __str__(self):
-        return f'{self.user.username if self.user else "No User"} - {self.job_name or "No Job Name"}'
-    
-class PersonalHealthInformation(models.Model):
-    user = models.OneToOneField(UserInfomation, on_delete=models.CASCADE, null=True, blank=True)
     age = models.IntegerField(null=True, blank=True)
     height = models.FloatField(null=True, blank=True)
     weight = models.FloatField(null=True, blank=True)
     has_pain = models.BooleanField(default=False, null=True, blank=True)
 
     def __str__(self):
-        return f'{self.user.username if self.user else "No User"} - Health Info'
+        return f'{self.user.username if self.user else "No User"} - {self.goal or "No Goal"}'
+
     
 
 class PostureDetection(models.Model):
     user = models.ForeignKey(UserInfomation, on_delete=models.CASCADE)
-    timestamp = models.DateTimeField(auto_now_add=True , null=True)
+    timestamp = models.DateTimeField(default=timezone.now, null=True)  # ย้าย timestamp มาที่นี่
     score = models.IntegerField()
-    detection_time = models.FloatField(null=True, blank=True)
-
-    
 
     def __str__(self):
-        return f'{self.user.username} - Posture Score: {self.score}'
+        return f'{self.user.username} - Posture Score: {self.score} - Timestamp: {self.timestamp}'
+
 
 class UserUsageHistory(models.Model):
-    posture_detection = models.ForeignKey(PostureDetection, on_delete=models.CASCADE, default=1)
-    timestamp = models.DateTimeField(auto_now_add=True , null=True)
-    detect_type = models.CharField(max_length=50, choices=[
-        ('Photo Detection', 'Photo Detection'),
-        ('Side-part Detection', 'Side-part Detection')
-    ])
-    detection_time = models.FloatField(null=True, blank=True)
+    posture_detection = models.ForeignKey(PostureDetection, on_delete=models.CASCADE)
+    detect_type = models.CharField(
+        max_length=50, 
+        choices=[
+            ('Photo Detection', 'Photo Detection'),
+            ('Side-part Detection', 'Side-part Detection')
+        ]
+    )
+    detection_time = models.FloatField(null=True, blank=True)  # ย้าย detection_time มาที่นี่
 
     def clean(self):
         # ถ้า detect_type เป็น 'Photo Detection' ต้องไม่ให้กรอกค่า detection_time
@@ -69,7 +64,8 @@ class UserUsageHistory(models.Model):
             raise ValidationError({'detection_time': 'Detection time must be empty for Photo Detection.'})
 
     def __str__(self):
-        return f'{self.posture_detection.user.username} - {self.detect_type} - Score: {self.posture_detection.score}'
+        return f'{self.posture_detection.user.username} - {self.detect_type} - Detection Time: {self.detection_time}'
+
 
 class NotificationLog(models.Model):
     user = models.ForeignKey(UserInfomation, on_delete=models.CASCADE)

@@ -26,10 +26,10 @@ urlpatterns = [
          name='password_reset_complete'),
      
     path('update-personal-information/', PersonalInformationUpdateView.as_view(), name='update_personal_information'),
-    path('update-personal-health/', PersonalHealthInformationUpdateView.as_view(), name='update_personal_health'),
-
+    
     path('change_username/',ChangeUsernameView.as_view(), name='change_name'),
     path('change_password/', ChangePasswordView.as_view(), name='change_pass'),
 
-
+    path('contact/', contact_view, name='contact'),
+    path('instuctions/', InstructionsView.as_view(), name='Howtouse')
 ]

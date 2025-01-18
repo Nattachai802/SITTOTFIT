@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import PasswordChangeForm
 
-from base.models import UserInfomation , PersonalInformation , PersonalHealthInformation
+from base.models import UserInfomation , PersonalInformation
 from django.contrib.auth.forms import UserCreationForm
 
 class UserRegisterForms(UserCreationForm):
@@ -31,12 +31,7 @@ class UserInfomationForm(forms.ModelForm):
 class PersonalInformationForm(forms.ModelForm):
     class Meta:
         model = PersonalInformation
-        fields = ['goal', 'job_name', 'job_type', 'job_hours', 'break_hours']
-
-class PersonalHealthInformationForm(forms.ModelForm):
-    class Meta:
-        model = PersonalHealthInformation
-        fields = ['age', 'height', 'weight', 'has_pain']
+        fields = ['goal', 'job_name', 'job_type', 'job_hours', 'break_hours','age', 'height', 'weight', 'has_pain']
 
 class UserChangeForm(forms.ModelForm):
     class Meta:
@@ -59,3 +54,8 @@ class CustomPasswordChangeForm(PasswordChangeForm):
         label="ยืนยันรหัสผ่านใหม่",
         widget=forms.PasswordInput(attrs={'class': 'form-control'})
     )
+
+class ContactForm(forms.Form):
+    name = forms.CharField(max_length=100, required=True)
+    email = forms.EmailField(required=True)
+    message = forms.CharField(widget=forms.Textarea, required=True)
