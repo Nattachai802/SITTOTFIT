@@ -13,7 +13,9 @@ SIT TO FIT เป็นระบบที่ช่วยติดตามแล
 3. ระบบแสดงแผนภาพแสดงความคืบหน้า(Dashborad)
 ![หน้าlogin](Dashborad.png)
 4. ระบบแจ้งเตือน ด้วยการใช้ FCM
-
+5. ระบบติดต่อผู้พัฒนาระบบ
+6. ระบบเตรวจจับท่านั่ง ผ่านรูปภาพ และ Realtime
+7. ระบบเลือกกล้องสำหรับตรวจจับท่านั่งแบบ Realtime
 
 # Installazion
 1. npm install tailwindcss postcss autoprefixer 
