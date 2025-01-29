@@ -1,374 +1,346 @@
-{% extends 'base_dash.html' %}
+{% extends 'base.html' %}
 
 {% block main %}
-<div class="container mx-auto max-w-7x">
-    <div class="bg-orange-400 p-6 rounded-lg shadow-lg my-5 flex flex-col items-start">
-        <div class="mb-3">
-            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-aperture"><circle cx="12" cy="12" r="10"/><path d="m14.31 8 5.74 9.94"/><path d="M9.69 8h11.48"/><path d="m7.38 12 5.74-9.94"/><path d="M9.69 16 3.95 6.06"/><path d="M14.31 16H2.83"/><path d="m16.62 12-5.74 9.94"/></svg>
+<body class="bg-gradient-to-br from-orange-200 via-orange-100 to-orange-50 font-sans min-h-screen py-12 animate-gradient-x">
+    <div class="max-w-7xl mx-auto backdrop-blur-lg bg-white/20 p-8 rounded-3xl shadow-2xl border border-white/30 hover:shadow-orange-200/20 transition-all duration-300">
+        
+        <!-- Header -->
+        <h1 class="text-4xl font-light text-start text-orange-600 mb-8 hover:text-orange-500 transition-colors">Dashboard</h1>
+
+        <div class=" mb-12 backdrop-blur-md bg-white/30 p-6 rounded-2xl border border-white/50 shadow-lg hover:shadow-orange-200/30 transition-all duration-300">
+            <h2 class="text-2xl font-light text-orange-600 mb-6">สรุปการใช้งานในวันนี้ในรูปแบบของรายชั่วโมง</h2>
+            <div id="chart_hour"></div>
         </div>
-        <h1 class="text-3xl font-bold text-white text-center">Dashboard</h1>
-        <p class="text-lg text-orange-100 mt-2 text-center">
-            สรุปข้อมูลและสถานะการใช้งานของคุณในวันนี้
-        </p>
-    </div>
-    
-    
 
-        <!-- กริดสำหรับ 3 คอลัมน์ 2 แถว -->
-
-    <div class="grid grid-cols-3 gap-6">
-            <!-- คอลัมน์ที่ 1 -->
-        <div class="space-y-6">
-            <div class="bg-orange-400 p-6 rounded-lg shadow">
-                <h2 class="text-2xl font-bold text-orange-100 mb-3">ความคืบหน้า</h2>
-                <div class="flex justify-between items-center mb-2 bg-orange-200 rounded-lg p-6 h-8 w-full shadow-lg ">
-                    <span class="font-bold text-xl text-orange-600">เป้าหมาย</span>
-                    <div class="relative group">
-                        <span class="text-orange-900 font-bold cursor-pointer text-xl"> 
-                            {{ goal }}
-                        </span>
-                        <div class="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 hidden group-hover:block bg-gray-800 text-white text-sm rounded py-2 px-4 shadow-lg max-w-xl w-max">
-                            {{ tooltip_text }}
+        <!-- Grid Layout: 2x3 -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Progress Section -->
+            <div class="space-y-6 lg:col-span-1">
+                <div class="backdrop-blur-md bg-white/30 p-6 rounded-2xl border border-white/50 shadow-lg hover:shadow-orange-200/30 transition-all duration-300">
+                    <h2 class="text-2xl font-light text-orange-600 mb-6">ความคืบหน้า</h2>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-4 bg-white/40 rounded-xl">
+                            <span class="text-orange-600">เป้าหมาย</span>
+                            <span class="text-orange-700 font-medium">{{ goal }}</span>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-white/40 rounded-xl">
+                            <span class="text-orange-600">จำนวนครั้งที่ใช้งาน</span>
+                            <span class="text-orange-700 font-medium">{{ usage_count }} ครั้ง</span>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-white/40 rounded-xl">
+                            <span class="text-orange-600">Ranking</span>
+                            <span class="text-orange-700 font-medium">{{ Rank }}</span>
                         </div>
                     </div>
                 </div>
-                <div class="flex justify-between items-center mb-2 bg-orange-200 rounded-lg p-6 h-8 w-full shadow-lg">
-                    <span class="font-bold text-xl text-orange-600">จำนวนครั้งที่ใช้งาน</span>
-                    <span class="font-bold text-xl text-blue-800 animate-pulse duration-500 ease-in-out">{{ usage_count }}</span>
-                    <span class="font-bold text-xl text-orange-600 ">ครั้ง</span>
-                </div>
-                <div class="flex justify-between items-center mb-2 bg-orange-200 rounded-lg p-6 h-8 w-full shadow-lg">
-                    <span class="font-bold text-xl text-orange-600">Ranking</span>
-                    <span class="font-bold text-xl text-blue-800 "> {{ Rank }} </span>
 
-                </div>    
-            </div>
-                
-            <div class="flex flex-col bg-orange-400 p-6 rounded-lg shadow">
-                <h2 class="text-2xl font-bold text-orange-100 mb-3">การใช้งานในวันนี้</h2>
-                <div class="flex flex-col lg:flex-row justify-between items-center mb-4 bg-orange-200 rounded-lg p-6 shadow-lg">
-                    <div id="donutChart" class="w-full lg:w-1/2"></div>
-                    <div class="text-center mt-4 lg:text-right lg:mt-0">
-                        <h1 class="font-bold text-base text-orange-600">คะแนนเฉลี่ยวันนี้</h1>
-                        <span class="font-bold text-xl text-blue-800 mt-5">{{ avg_score|floatformat:2 }}</span>
-                    </div>
-                </div>
-                <div class="flex justify-between items-center mb-2 bg-orange-200 rounded-lg p-2 h-auto w-auto shadow-md">
-                    <span class='font-bold text-xl text-orange-600'>จำนวนการใช้งานในวันนี้</span>
-                    <span class = 'font-bold text-xl text-blue-800'> {{ today_count }}</span>
-                    <span class = 'font-bold text-xl text-orange-600'>ครั้ง</span>
-                </div>
-                <div class="flex justify-between items-center mb-2 bg-orange-200 rounded-lg p-2 h-auto w-auto shadow-md">
-                    <span class='font-bold text-xl text-orange-600'>เวลาที่ใช้งานบ่อยที่สุด</span>
-                    <span class='font-bold text-xl text-blue-800'> {{ peak_hour|date:"H:i"}}</span>
-                </div>
-                <div class='flex justify-between items-center h-auto w-auto'>
-                    <div class="bg-green-500 text-white rounded-lg py-2 px-3 shadow-md flex flex-col items-center">
-                        <span class="font-bold text-lg">คะแนนมากที่สุด</span>
-                        <span class="ml-3 text-2xl font-bold">{{ max_score }}</span>
-                    </div>
-                    <div class='flex justify-between items-center h-auto w-auto'>
-                        <div class="bg-red-500 text-white rounded-lg py-2 px-3 shadow-md flex flex-col items-center">
-                            <span class="font-bold text-lg">คะแนนน้อยที่สุด</span>
-                            <span class="ml-3 text-2xl font-bold">{{ min_score }}</span>
+                <!-- Today's Usage -->
+                <div class="backdrop-blur-md bg-white/30 p-6 rounded-2xl border border-white/50 shadow-lg hover:shadow-orange-200/30 transition-all duration-300">
+                    <h2 class="text-2xl font-light text-orange-600 mb-6">การใช้งานในวันนี้</h2>
+                    <div id="donutChart" class="mb-6"></div>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <div class="bg-green-500 text-white rounded-lg py-2 px-3 shadow-md flex flex-col items-center">
+                                <span class="font-bold text-lg">คะแนนมากที่สุด</span>
+                                <span class="ml-3 text-2xl font-bold">{{ max_score }}</span>
+                            </div>
+                            <div class="bg-red-500 text-white rounded-lg py-2 px-3 shadow-md flex flex-col items-center">
+                                <span class="font-bold text-lg">คะแนนน้อยที่สุด</span>
+                                <span class="ml-3 text-2xl font-bold">{{ min_score }}</span>
+                            </div>
                         </div>
                     </div>
-                </div>
-                    <script>
-                        fetch('/dashboard/data/')
-                            .then(response => response.json())
-                            .then(data => {
-                                // กำหนดค่า Options สำหรับ Donut Chart
-                                var options = {
-                                    chart: {
-                                        type: 'donut',
-                                        height: 200,
-                                    },
-                                    series: data.values,
-                                    labels: data.categories,
-                                    responsive: [{
-                                        breakpoint: 768,
-                                        options: {
-                                            chart: {
-                                                height: 150
-                                            },
-                                        }
-                                    }],
-                                    colors: ['#28a745', '#6c757d'],
-                                    legend: {
-                                        show: false // ปิด legend
-                                    },
-                                };
- 
-                                var chart = new ApexCharts(document.querySelector("#donutChart"), options);
-                                chart.render();
-                            })
-                            .catch(error => console.error('Error fetching data:', error));
-                    </script>
                 </div>
             </div>
 
-            <div class="space-y-6">
-                <div class="bg-orange-400 p-6 rounded-lg shadow">
-                    
-                    <h2 class="text-2xl font-bold text-center mb-4 text-orange-100">สถิติการใช้งานในสัปดาห์นี้</h2>
-                    <div id="chart" style="max-width: 500px; margin: 0 auto;"></div>
-                    <script>
-                        fetch('/dashboard/weekly-usage-stats/')
-                            .then(response => response.json())
-                            .then(data => {
-                        const days = Object.keys(data.usage_data);
-                        const counts = Object.values(data.usage_data);
-                        var options = {
-                            chart: {
-                                type: 'bar',
-                            },
-                            plotOptions: {
-                                bar: {
-                                  horizontal: true
-                                }
-                            },
-                            series: [{
-                                name: 'จำนวนการใช้งาน',
-                                data: counts,
-                            }],
-                            xaxis: {
-                                categories: days,
-                            },
-                            colors: ['#28a745'],
-                            title: {
-                                text: 'สถิติการใช้งานในสัปดาห์นี้',
-                                align: 'center',
-                            },
-                        };
-                    
-                        var chart = new ApexCharts(document.querySelector("#chart"), options);
-                        chart.render();
-                    }).catch(error => console.error('Error fetching data:', error));
-
-                    </script>
-                </div>
-                
-                <div class="bg-orange-400 p-6 rounded-lg shadow">
-                    <h2 class="text-2xl font-bold text-orange-100 mb-3">ประวัติการใช้งานเมื่อวาน</h2>
-                    <div class="flex justify-between items-center mb-2 bg-orange-200 rounded-lg p-6 h-full w-full shadow-lg">
-                        <div id="donutChart_yesterday" class="w-full lg:w-1/2"></div>
-                        <div class="text-center mt-4 lg:text-right lg:mt-0">
-                            <h1 class="font-bold text-base text-orange-600">คะแนนเฉลี่ยวันนี้</h1>
-                            <span class="font-bold text-xl text-blue-800 mt-5">{{ yesterday_score|floatformat:2 }}</span>
-                        </div>
+            <!-- Weekly Stats Section -->
+            <div class="space-y-6 lg:col-span-1">
+                    <!-- Weekly Average Scores -->
+                    <div class="backdrop-blur-md bg-white/30 p-6 rounded-2xl border border-white/50 shadow-lg hover:shadow-orange-200/30 transition-all duration-300">
+                        <h2 class="text-2xl font-light text-orange-600 mb-6">กราฟสรุปคะแนนเฉลี่ยในสัปดาห์</h2>
+                        <div id="linechart"></div>
                     </div>
-                    <div class='flex justify-between items-center h-auto w-auto'>
+                <!-- Yesterday's Stats -->
+                <div class="backdrop-blur-md bg-white/30 p-6 rounded-2xl border border-white/50 shadow-lg hover:shadow-orange-200/30 transition-all duration-300">
+                    <h2 class="text-2xl font-light text-orange-600 mb-6">ประวัติการใช้งานเมื่อวาน</h2>
+                    <div id="donutChart_yesterday"></div>
+                    <div class="flex justify-between items-center">
                         <div class="bg-green-500 text-white rounded-lg py-2 px-3 shadow-md flex flex-col items-center">
                             <span class="font-bold text-lg">คะแนนมากที่สุด</span>
                             <span class="ml-3 text-2xl font-bold">{{ max_yesterday }}</span>
                         </div>
-                        <div class='flex justify-between items-center h-auto w-auto'>
-                            <div class="bg-red-500 text-white rounded-lg py-2 px-3 shadow-md flex flex-col items-center">
-                                <span class="font-bold text-lg">คะแนนน้อยที่สุด</span>
-                                <span class="ml-3 text-2xl font-bold">{{ min_yesterday }}</span>
-                            </div>
+                        <div class="bg-red-500 text-white rounded-lg py-2 px-3 shadow-md flex flex-col items-center">
+                            <span class="font-bold text-lg">คะแนนน้อยที่สุด</span>
+                            <span class="ml-3 text-2xl font-bold">{{ min_yesterday }}</span>
                         </div>
                     </div>
-
-                    <script>
-                        fetch('/dashboard/yesterday-usage-stats/')
-                            .then(response => response.json())
-                            .then(data => {
-                                // กำหนดค่า Options สำหรับ Donut Chart
-                                var options = {
-                                    chart: {
-                                        type: 'donut',
-                                        height: 200,
-                                    },
-                                    series: data.values,
-                                    labels: data.categories,
-                                    responsive: [{
-                                        breakpoint: 768,
-                                        options: {
-                                            chart: {
-                                                height: 150
-                                            },
-                                        }
-                                    }],
-                                    colors: ['#28a745', '#6c757d'],
-                                    legend: {
-                                        show: false // ปิด legend
-                                    },
-                                };
- 
-                                var chart = new ApexCharts(document.querySelector("#donutChart_yesterday"), options);
-                                chart.render();
-                            })
-                            .catch(error => console.error('Error fetching data:', error));
-                    </script>    
                 </div>
             </div>
 
-            <!-- คอลัมน์ที่ 3 -->
-            <div class="space-y-6">
-                <div class="bg-orange-400 p-6 rounded-lg shadow">
-                    <h2 class="text-2xl font-bold text-orange-100 mb-3">กราฟสรุปคะแนนเฉลี่ยในสัปดาห์</h2>
-                    <div id="linechart" class="w-full"></div>
-                    <script>
-                        fetch('/dashboard/weekly-average-scores/')
-                        .then(response => response.json())
-                        .then(data => {
-                            const days = Object.keys(data.usage_data); // ['MON', 'TUE', 'WED', ...]
-                            const avgScores = Object.values(data.usage_data); // [85.5, 80.3, ...]
-
-                            var options = {
-                                chart: {
-                                    type: 'line',
-                                },
-                                series: [{
-                                    name: 'Average Score',
-                                    data: avgScores,
-                                }],
-                                xaxis: {
-                                    categories: days,
-                                },
-                                colors: ['#FF6F61'],
-                            };
-                        
-                            var chart = new ApexCharts(document.querySelector("#linechart"), options);
-                            chart.render();
-                            }).catch(error => console.error('Error fetching data:', error));
-
-                    </script>
-                </div>
-                
-                <div class="bg-orange-400 p-6 rounded-lg shadow">
-                    <h2 class="text-2xl font-bold text-orange-100 mb-3">Heatmap ความหนาแน่นการใช้งาน</h2>
-                    <div id="heatmapChart" class="w-full"></div>
+            <!-- Analysis Section -->
+            <div class="space-y-6 lg:col-span-1">
+                <!-- Weekly Average Scores -->
+                <div class="backdrop-blur-md bg-white/30 p-6 rounded-2xl border border-white/50 shadow-lg hover:shadow-orange-200/30 transition-all duration-300">
+                    <h2 class="text-2xl font-light text-orange-600 mb-6">สถิติการใช้งานในสัปดาห์นี้</h2>
+                    <div id="chart"></div>
                 </div>
 
-                <script>
-                    fetch('/dashboard/heatmap-data/')
-                    .then(response => response.json())
-                    .then(data => {
-                        const options = {
-                            chart: {
-                                type: 'heatmap',
-                                height: 300,
-                            },
-                            series: data.series.map(day => ({
-                                name: day.name,
-                                data: day.data.map(item => item.count)
-                            })),
-                            xaxis: {
-                                categories: ['เช้า', 'สาย', 'บ่าย', 'เย็น'],
-                                title: { text: 'ช่วงเวลา' }
-                            },
-                            yaxis: {
-                                categories: data.days,
-                                title: { text: 'วัน' }
-                            },
-                            dataLabels: {
-                                enabled: false // ปิดการแสดงตัวเลขบน Heatmap
-                            },
-                            colors: ['#FFB84D', '#FF6F61', '#D0021B'],
-                            tooltip: {
-                                y: {
-                                    formatter: (value) => `${value} ครั้ง`
-                                }
-                            }
-                        };
-                
-                        const chart = new ApexCharts(document.querySelector("#heatmapChart"), options);
-                        chart.render();
-                    })
-                    .catch(error => console.error('Error fetching heatmap data:', error));
-                
-                </script>
-                
-                <div id="chartaaa" style="max-width: 700px; margin: 0 auto;"></div>
+                <!-- Heatmap -->
+                <div class="backdrop-blur-md bg-white/30 p-6 rounded-2xl border border-white/50 shadow-lg hover:shadow-orange-200/30 transition-all duration-300">
+                    <h2 class="text-2xl font-light text-orange-600 mb-6">ความถี่ของการใช้งานในแต่ละวัน</h2>
+                    <div id="heatmapChart"></div>
+                </div>
 
-                <script>
-                    // เรียก API เพื่อดึงข้อมูล
-                    fetch('/detailed-usage-data/')
-                        .then(response => response.json())
-                        .then(data => {
-                            const usageData = data.usage_data;
-            
-                            // สร้างข้อมูลสำหรับ 24 ชั่วโมง (0-23)
-                            const hours = Array.from({ length: 24 }, (_, i) => `${i}:00`); // [0:00, 1:00, ..., 23:00]
-                            const scores = Array(24).fill(null); // ค่าเริ่มต้นเป็น null
-            
-                            // ใส่คะแนนในชั่วโมงที่มีข้อมูล
-                            usageData.forEach(item => {
-                                const startHour = parseInt(item.start_time.split(':')[0], 10);
-                                scores[startHour] = item.score; // แทนที่ค่าชั่วโมงที่มีคะแนน
-                            });
-            
-                            // กำหนดค่าของกราฟ ApexCharts
-                            const options = {
-                                chart: {
-                                    type: 'line',
-                                    height: 400
-                                },
-                                series: [{
-                                    name: 'Score',
-                                    data: scores
-                                }],
-                                xaxis: {
-                                    categories: hours, // กำหนดแกน X เป็นเวลา
-                                    title: {
-                                        text: 'Hour of the Day'
-                                    },
-                                    labels: {
-                                        rotate: -45,
-                                        style: {
-                                            fontSize: '12px'
-                                        }
-                                    }
-                                },
-                                yaxis: {
-                                    title: {
-                                        text: 'Score'
-                                    },
-                                    min: 0,
-                                    max: 100
-                                },
-                                title: {
-                                    text: 'Hourly Posture Scores',
-                                    align: 'center'
-                                },
-                                stroke: {
-                                    curve: 'smooth',
-                                    width: 2
-                                },
-                                markers: {
-                                    size: 5,
-                                    hover: {
-                                        size: 7
-                                    }
-                                },
-                                tooltip: {
-                                    enabled: true,
-                                    custom: function({ series, seriesIndex, dataPointIndex }) {
-                                        const score = series[seriesIndex][dataPointIndex];
-                                        const hour = hours[dataPointIndex];
-                                        if (score === null) return null; // ไม่มีข้อมูลสำหรับจุดนี้
-                                        return `
-                                            <div style="padding: 10px; background: white; border: 1px solid #ddd; border-radius: 4px;">
-                                                <p><strong>Time:</strong> ${hour}</p>
-                                                <p><strong>Score:</strong> ${score}</p>
-                                            </div>
-                                        `;
-                                    }
-                                },
-                                connectNulls: true // ให้เส้นเชื่อมต่อเมื่อมี null
-                            };
-            
-                            // แสดงกราฟใน div ที่มี id="chart"
-                            const chart = new ApexCharts(document.querySelector("#chartaaa"), options);
-                            chart.render();
-                        })
-                        .catch(error => console.error('Error fetching data:', error));
-                </script> 
+                <!-- Hourly Usage -->
+
             </div>
         </div>
     </div>
-</div>
+</body>
+<script>
+    fetch('/dashboard/data/')
+        .then(response => response.json())
+        .then(data => {
+            // กำหนดค่า Options สำหรับ Donut Chart
+            var options = {
+                chart: {
+                    type: 'donut',
+                    height: 200,
+                },
+                series: data.values,
+                labels: data.categories,
+                responsive: [{
+                    breakpoint: 768,
+                    options: {
+                        chart: {
+                            height: 150
+                        },
+                    }
+                }],
+                colors: ['#28a745', '#6c757d'],
+                legend: {
+                    show: false // ปิด legend
+                },
+            };
+
+            var chart = new ApexCharts(document.querySelector("#donutChart"), options);
+            chart.render();
+        })
+        .catch(error => console.error('Error fetching data:', error));
+</script>
+<script>
+    fetch('/dashboard/weekly-usage-stats/')
+        .then(response => response.json())
+        .then(data => {
+    const days = Object.keys(data.usage_data);
+    const counts = Object.values(data.usage_data);
+    var options = {
+        chart: {
+            type: 'bar',
+        },
+        plotOptions: {
+            bar: {
+              horizontal: true
+            }
+        },
+        series: [{
+            name: 'จำนวนการใช้งาน',
+            data: counts,
+        }],
+        xaxis: {
+            categories: days,
+        },
+        colors: ['#28a745'],
+        title: {
+            text: 'สถิติการใช้งานในสัปดาห์นี้',
+            align: 'center',
+        },
+    };
+
+    var chart = new ApexCharts(document.querySelector("#chart"), options);
+    chart.render();
+}).catch(error => console.error('Error fetching data:', error));
+
+</script>
+<script>
+    fetch('/dashboard/yesterday-usage-stats/')
+        .then(response => response.json())
+        .then(data => {
+            // กำหนดค่า Options สำหรับ Donut Chart
+            var options = {
+                chart: {
+                    type: 'donut',
+                    height: 200,
+                },
+                series: data.values,
+                labels: data.categories,
+                responsive: [{
+                    breakpoint: 768,
+                    options: {
+                        chart: {
+                            height: 150
+                        },
+                    }
+                }],
+                colors: ['#28a745', '#6c757d'],
+                legend: {
+                    show: false // ปิด legend
+                },
+            };
+
+            var chart = new ApexCharts(document.querySelector("#donutChart_yesterday"), options);
+            chart.render();
+        })
+        .catch(error => console.error('Error fetching data:', error));
+</script>
+
+<script>
+    fetch('/dashboard/weekly-average-scores/')
+    .then(response => response.json())
+    .then(data => {
+        const days = Object.keys(data.usage_data); // ['MON', 'TUE', 'WED', ...]
+        const avgScores = Object.values(data.usage_data); // [85.5, 80.3, ...]
+
+        var options = {
+            chart: {
+                type: 'line',
+            },
+            series: [{
+                name: 'Average Score',
+                data: avgScores,
+            }],
+            xaxis: {
+                categories: days,
+            },
+            colors: ['#FF6F61'],
+        };
+    
+        var chart = new ApexCharts(document.querySelector("#linechart"), options);
+        chart.render();
+        }).catch(error => console.error('Error fetching data:', error));
+
+</script>
+
+
+<script>
+    fetch('/dashboard/heatmap-data/')
+    .then(response => response.json())
+    .then(data => {
+        const options = {
+            chart: {
+                type: 'heatmap',
+                height: 300,
+            },
+            series: data.series.map(day => ({
+                name: day.name,
+                data: day.data.map(item => item.count)
+            })),
+            xaxis: {
+                categories: ['เช้า', 'สาย', 'บ่าย', 'เย็น'],
+                title: { text: 'ช่วงเวลา' }
+            },
+            yaxis: {
+                categories: data.days,
+                title: { text: 'วัน' }
+            },
+            dataLabels: {
+                enabled: false // ปิดการแสดงตัวเลขบน Heatmap
+            },
+            colors: ['#FFB84D', '#FF6F61', '#D0021B'],
+            tooltip: {
+                y: {
+                    formatter: (value) => `${value} ครั้ง`
+                }
+            }
+        };
+
+        const chart = new ApexCharts(document.querySelector("#heatmapChart"), options);
+        chart.render();
+    })
+    .catch(error => console.error('Error fetching heatmap data:', error));
+
+</script>
+<script>
+    // เรียก API เพื่อดึงข้อมูล
+    fetch('/detailed-usage-data/')
+        .then(response => response.json())
+        .then(data => {
+            const usageData = data.usage_data;
+
+            // สร้างข้อมูลสำหรับ 24 ชั่วโมง (0-23)
+            const hours = Array.from({ length: 24 }, (_, i) => `${i}:00`); // [0:00, 1:00, ..., 23:00]
+            const scores = Array(24).fill(null); // ค่าเริ่มต้นเป็น null
+
+            // ใส่คะแนนในชั่วโมงที่มีข้อมูล
+            usageData.forEach(item => {
+                const startHour = parseInt(item.start_time.split(':')[0], 10);
+                scores[startHour] = item.score; // แทนที่ค่าชั่วโมงที่มีคะแนน
+            });
+
+            // กำหนดค่าของกราฟ ApexCharts
+            const options = {
+                chart: {
+                    type: 'line',
+                    height: 400
+                },
+                series: [{
+                    name: 'Score',
+                    data: scores
+                }],
+                xaxis: {
+                    categories: hours, // กำหนดแกน X เป็นเวลา
+                    title: {
+                        text: 'Hour of the Day'
+                    },
+                    labels: {
+                        rotate: -45,
+                        style: {
+                            fontSize: '12px'
+                        }
+                    }
+                },
+                yaxis: {
+                    title: {
+                        text: 'Score'
+                    },
+                    min: 0,
+                    max: 100
+                },
+                title: {
+                    text: 'Hourly Posture Scores',
+                    align: 'center'
+                },
+                stroke: {
+                    curve: 'smooth',
+                    width: 2
+                },
+                markers: {
+                    size: 5,
+                    hover: {
+                        size: 7
+                    }
+                },
+                tooltip: {
+                    enabled: true,
+                    custom: function({ series, seriesIndex, dataPointIndex }) {
+                        const score = series[seriesIndex][dataPointIndex];
+                        const hour = hours[dataPointIndex];
+                        if (score === null) return null; // ไม่มีข้อมูลสำหรับจุดนี้
+                        return `
+                            <div style="padding: 10px; background: white; border: 1px solid #ddd; border-radius: 4px;">
+                                <p><strong>Time:</strong> ${hour}</p>
+                                <p><strong>Score:</strong> ${score}</p>
+                            </div>
+                        `;
+                    }
+                },
+                connectNulls: true // ให้เส้นเชื่อมต่อเมื่อมี null
+            };
+
+            // แสดงกราฟใน div ที่มี id="chart"
+            const chart = new ApexCharts(document.querySelector("#chart_hour"), options);
+            chart.render();
+        })
+        .catch(error => console.error('Error fetching data:', error));
+</script>
 {% endblock %}

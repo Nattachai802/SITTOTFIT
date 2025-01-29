@@ -1,82 +1,85 @@
 {% extends 'base.html' %}
 
 {% block main %}
-<body class="bg-gray-100 font-sans">
-    <header class="bg-blue-600 text-white p-4">
-        <h1 class="text-xl font-bold text-center">How to Use</h1>
-    </header>
+<body class="bg-gradient-to-br from-orange-200 via-orange-100 to-orange-50 font-sans min-h-screen py-12 animate-gradient-x">
 
-    <main class="max-w-4xl mx-auto my-6 p-6 bg-white rounded-lg shadow-md">
-        <section class="mb-8">
-            <h2 class="text-2xl font-bold mb-4">Introduction</h2>
-            <p class="text-gray-700">ยินดีต้อนรับเข้าสู่เว็บไซค์ SIT TO FIT เว็บไซต์ตรวจจับท่านั่งเพื่อสุขภาพที่ยั่งยืน</p>
+    <!-- Main Glass Container -->
+    <main class="max-w-4xl mx-auto backdrop-blur-lg bg-white/20 p-8 rounded-3xl shadow-2xl border border-white/30 hover:shadow-orange-200/20 transition-all duration-300">
+        <!-- Introduction Section -->
+        <section class="mb-12">
+            <h2 class="text-3xl font-light text-orange-600 mb-4">Introduction</h2>
+            <p class="text-orange-700/80">ยินดีต้อนรับเข้าสู่เว็บไซค์ SIT TO FIT เว็บไซต์ตรวจจับท่านั่งเพื่อสุขภาพที่ยั่งยืน</p>
         </section>
 
-        <section class="mb-8">
-            <h2 class="text-2xl font-bold mb-4">Step-by-Step Instructions</h2>
-            <p class="text-gray-700">SIT TO FIT วิธีการใช้งานง่ายๆด้วยหลัก 4S</p>
+        <!-- Steps Section -->
+        <section class="mb-12">
+            <h2 class="text-3xl font-light text-orange-600 mb-6">Step-by-Step Instructions</h2>
+            <p class="text-orange-700/80 mb-8 font-extrabold">SIT TO FIT วิธีการใช้งานง่ายๆด้วยหลัก 4S</p>
 
-            <div class="space-y-4">
-                <!-- Step 1 -->
-                <div class="flex items-start space-x-4 transition-transform duration-300 hover:scale-105">
-                    <div class="flex-none">
-                        <div class="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">1S</div>
+            <div class="space-y-6">
+                <!-- Step Cards -->
+                <div class="grid gap-6">
+                    <!-- Step 1 -->
+                    <div class="backdrop-blur-md bg-white/30 p-6 rounded-2xl border border-white/50 shadow-lg hover:shadow-orange-200/30 transition-all duration-300 hover:scale-[1.02]">
+                        <div class="flex items-center gap-6">
+                            <div class="w-14 h-14 bg-gradient-to-r from-orange-500/80 to-orange-400/80 text-white rounded-2xl flex items-center justify-center font-bold text-xl shadow-lg">1S</div>
+                            <div>
+                                <h3 class="text-2xl font-light text-orange-600">Select Camera</h3>
+                                <p class="text-orange-700/70 mt-2">เลือกกล้องที่เหมาะสมสำหรับการตรวจจับท่านั่ง</p>
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <h3 class="text-xl font-semibold">Select Camera</h3>
-                        <p class="text-gray-700">เลือกกล้องที่เหมาะสมสำหรับการตรวจจับท่านั่ง</p>
-                    </div>
-                </div>
 
-                <!-- Step 2 -->
-                <div class="flex items-start space-x-4 transition-transform duration-300 hover:scale-105">
-                    <div class="flex-none">
-                        <div class="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">2S</div>
+                    <!-- Step 2 -->
+                    <div class="backdrop-blur-md bg-white/30 p-6 rounded-2xl border border-white/50 shadow-lg hover:shadow-orange-200/30 transition-all duration-300 hover:scale-[1.02]">
+                        <div class="flex items-center gap-6">
+                            <div class="w-14 h-14 bg-gradient-to-r from-orange-500/80 to-orange-400/80 text-white rounded-2xl flex items-center justify-center font-bold text-xl shadow-lg">2S</div>
+                            <div>
+                                <h3 class="text-2xl font-light text-orange-600">Setup Your body</h3>
+                                <p class="text-orange-700/70 mt-2">จัดวางท่าทางร่างกายให้เหมาะสม โดยกล้องจะต้องจับผู้ใช้งานที่นั่งด้านข้าง และ ต้องเห็นสัดส่วนเต็มตัว</p>
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <h3 class="text-xl font-semibold">Setup Your body</h3>
-                        <p class="text-gray-700">จัดวางท่าทางร่างกายให้เหมาะสม โดยกล้องจะต้องจับผู้ใช้งานที่นั่งด้านข้าง และ ต้องเห็นสัดส่วนเต็มตัว</p>
-                    </div>
-                </div>
 
-                <!-- Step 3 -->
-                <div class="flex items-start space-x-4 transition-transform duration-300 hover:scale-105">
-                    <div class="flex-none">
-                        <div class="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">3S</div>
+                    <!-- Step 3 -->
+                    <div class="backdrop-blur-md bg-white/30 p-6 rounded-2xl border border-white/50 shadow-lg hover:shadow-orange-200/30 transition-all duration-300 hover:scale-[1.02]">
+                        <div class="flex items-center gap-6">
+                            <div class="w-14 h-14 bg-gradient-to-r from-orange-500/80 to-orange-400/80 text-white rounded-2xl flex items-center justify-center font-bold text-xl shadow-lg">3S</div>
+                            <div>
+                                <h3 class="text-2xl font-light text-orange-600">Start Posture Analysis</h3>
+                                <p class="text-orange-700/70 mt-2">เริ่มทำการตรวจจับท่านั่ง</p>
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <h3 class="text-xl font-semibold">Start Posture Analysis </h3>
-                        <p class="text-gray-700">เริ่มทำการตรวจจับท่านั่ง</p>
-                    </div>
-                </div>
 
-                <!-- Step 4 -->
-                <div class="flex items-start space-x-4 transition-transform duration-300 hover:scale-105">
-                    <div class="flex-none">
-                        <div class="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">4S</div>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-semibold">Stop and Check </h3>
-                        <p class="text-gray-700">หยุดทำการตรวจสอบจากนั้นดูผลคะแนนที่หน้าDashboard</p>
+                    <!-- Step 4 -->
+                    <div class="backdrop-blur-md bg-white/30 p-6 rounded-2xl border border-white/50 shadow-lg hover:shadow-orange-200/30 transition-all duration-300 hover:scale-[1.02]">
+                        <div class="flex items-center gap-6">
+                            <div class="w-14 h-14 bg-gradient-to-r from-orange-500/80 to-orange-400/80 text-white rounded-2xl flex items-center justify-center font-bold text-xl shadow-lg">4S</div>
+                            <div>
+                                <h3 class="text-2xl font-light text-orange-600">Stop and Check</h3>
+                                <p class="text-orange-700/70 mt-2">หยุดทำการตรวจสอบจากนั้นดูผลคะแนนที่หน้า Dashboard</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
 
+        <!-- FAQ Section -->
         <section class="mb-8">
-            <h2 class="text-2xl font-bold mb-4">Frequently Asked Questions</h2>
+            <h2 class="text-3xl font-light text-orange-600 mb-6">Frequently Asked Questions</h2>
             <div class="space-y-4">
-                <details class="border rounded-lg p-4 transition-shadow duration-300 hover:shadow-lg">
-                    <summary class="font-semibold">หากลืมรหัสผ่านต้องทำอย่างไร?</summary>
-                    <p class="mt-2 text-gray-700">คุณสามารถตั้งรหัสผ่านใหม่ได้ที่หน้า account</p>
+                <details class="group backdrop-blur-md bg-white/30 p-6 rounded-2xl border border-white/50 shadow-lg hover:shadow-orange-200/30 transition-all duration-300">
+                    <summary class="font-light text-xl text-orange-600 cursor-pointer">หากลืมรหัสผ่านต้องทำอย่างไร?</summary>
+                    <p class="mt-4 text-orange-700/70 group-open:animate-fadeIn">คุณสามารถตั้งรหัสผ่านใหม่ได้ที่หน้า account</p>
                 </details>
-                <details class="border rounded-lg p-4 transition-shadow duration-300 hover:shadow-lg">
-                    <summary class="font-semibold">ถ้าไม่มีกล้องจะสามารถตรวจสอบท่านั่งได้ไหม?</summary>
-                    <p class="mt-2 text-gray-700">ได้ครับ คุณสามารถถ่ายรูปของคุณมาให้ระบบของเราตรวจสอบได้ครับ</p>
+                <details class="group backdrop-blur-md bg-white/30 p-6 rounded-2xl border border-white/50 shadow-lg hover:shadow-orange-200/30 transition-all duration-300">
+                    <summary class="font-light text-xl text-orange-600 cursor-pointer">ถ้าไม่มีกล้องจะสามารถตรวจสอบท่านั่งได้ไหม?</summary>
+                    <p class="mt-4 text-orange-700/70 group-open:animate-fadeIn">ได้ครับ คุณสามารถถ่ายรูปของคุณมาให้ระบบของเราตรวจสอบได้ครับ</p>
                 </details>
             </div>
         </section>
     </main>
-
 </body>
 {% endblock %}

@@ -1,121 +1,162 @@
 {% extends "base.html" %}
 {% block main %}
-<body class="bg-gray-50 font-sans">
+<body class="bg-gradient-to-br from-orange-200 via-orange-100 to-orange-50 font-sans min-h-screen py-12 animate-gradient-x">
+    <!-- Enhanced Glass Container -->
+    <div class="max-w-4xl mx-auto backdrop-blur-lg bg-white/20 p-8 rounded-3xl shadow-2xl border border-white/30 hover:shadow-orange-200/20 transition-all duration-300">
+        <h1 class="text-4xl font-light text-center text-orange-600 mb-8 hover:text-orange-500 transition-colors">อัพโหลดรูปภาพ</h1>
 
-    <!-- Container -->
-    <div class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-md mt-12">
-        <h1 class="text-3xl font-bold text-center text-blue-600 mb-6">Upload Image for Posture Detection</h1>
-
-        <!-- Image Upload Form -->
-        <form id="upload-form" enctype="multipart/form-data" class="flex flex-col items-center">
-            <input type="file" id="imageInput" accept="image/*" class="mb-4 p-2 border rounded-lg shadow-sm" onchange="previewImage()">
-            <!-- Preview Image -->
-            <div id="image-preview" class="mb-4 hidden">
-                <img id="preview-img" src="" alt="Image Preview" class="max-w-xs rounded-lg shadow-lg">
+        <!-- Enhanced Upload Section -->
+        <div class="mb-8 flex flex-col gap-6">
+            <div class="group relative">
+                <input type="file" id="imageInput" accept="image/*" class="hidden" onchange="handleImageSelect(event)">
+                <label for="imageInput" class="flex flex-col items-center justify-center w-full h-64 border-2 border-orange-200 border-dashed rounded-3xl cursor-pointer bg-white/40 hover:bg-white/50 transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-orange-400 mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                    <p class="text-orange-600">คลิกเพื่ออัพโหลดรูปภาพ</p>
+                    <p class="text-sm text-orange-400">หรือลากและวางที่นี่</p>
+                </label>
             </div>
-            <button type="button" onclick="uploadImage('Photo Detection')" class="bg-blue-500 hover:bg-blue-600 text-white font-bold px-6 py-2 rounded-lg shadow-lg">
-                Upload & Process Image
-            </button>
-        </form>
 
-        <!-- Results Section -->
-        <div id="result" class="mt-8 bg-blue-100 p-6 rounded-lg shadow-md hidden">
-            <h2 class="text-2xl font-semibold text-center text-blue-600 mb-4">Posture Detection Result</h2>
-            <p id="result-message" class="text-center text-blue-700 text-lg"></p>
-            <ul id="result-details" class="list-none mt-4 text-gray-700 space-y-2"></ul>
-            <div id="feedback-section" class="mt-4"></div>
+            <div id="preview" class="hidden flex justify-center items-center w-full my-4">
+                <img id="imagePreview" class="max-w-full rounded-2xl shadow-lg w-64 h-64" src="" alt="Image preview">
+            </div>
+
+            <!-- Enhanced Submit Button -->
+            <button onclick="uploadImage()" class="group px-10 py-4 bg-gradient-to-r from-orange-500/90 to-orange-400/90 hover:from-orange-600/90 hover:to-orange-500/90 text-white rounded-2xl shadow-lg backdrop-blur-sm transition-all hover:scale-105 font-light self-center">
+                <span class="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="group-hover:transform group-hover:translate-x-1 transition-transform">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    วิเคราะห์รูปภาพ
+                </span>
+            </button>
+
+            <!-- Result Section -->
+            <div id="result" class="hidden mt-10 backdrop-blur-md bg-white/40 p-8 rounded-3xl shadow-xl border border-white/30 hover:shadow-orange-200/30 transition-all duration-300">
+                <h2 class="text-2xl font-light text-center text-orange-600 mb-6">ผลการวิเคราะห์</h2>
+                
+                <!-- Centered Progress Circle -->
+                <div class="flex justify-center mb-6">
+                    <div class="relative w-36 h-36">
+                        <svg class="w-full h-full -rotate-90 transform" viewBox="0 0 100 100">
+                            <circle class="text-orange-200/40" stroke-width="8" stroke="currentColor" fill="transparent" r="40" cx="50" cy="50"/>
+                            <circle id="score-circle" 
+                                class="text-orange-500/80 transition-all duration-700" 
+                                stroke-width="8" 
+                                stroke="currentColor" 
+                                fill="transparent" 
+                                r="40" 
+                                cx="50" 
+                                cy="50"
+                                stroke-dasharray="251.2" 
+                                stroke-dashoffset="251.2"
+                                style="stroke-linecap: round;"
+                            />
+                        </svg>
+                        <div class="absolute inset-0 flex items-center justify-center flex-col">
+                            <p id="score-text" class="text-4xl font-bold text-orange-700">0%</p>
+                            <p class="text-lg text-orange-600">คะแนน</p>
+                        </div>
+                    </div>
+                </div>
+            
+                <p id="result-message" class="text-center text-orange-700/80 text-lg font-light"></p>
+                <ul id="result-details" class="list-none mt-6 text-orange-600/80 space-y-3"></ul>
+                <div id="feedback-section" class="mt-8 p-6 bg-orange-50/70 border-l-4 border-orange-400 shadow-md rounded-2xl">
+                </div>
+            </div>
         </div>
     </div>
+</body>
 
-    <script>
-        function getCSRFToken() {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.startsWith('csrftoken=')) {
-                    return cookie.substring('csrftoken='.length, cookie.length);
-                }
-            }
-            return null;
+<script>
+function handleImageSelect(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('imagePreview').src = e.target.result;
+            document.getElementById('preview').classList.remove('hidden');
         }
+        reader.readAsDataURL(file);
+    }
+}
 
+function updateScore(score) {
+    const scoreText = document.getElementById('score-text');
+    const scoreCircle = document.getElementById('score-circle');
+    
+    let roundedScore = score.toFixed(1);
+    scoreText.textContent = `${roundedScore}%`;
+    
+    if (scoreCircle) {
+        let maxStroke = 251.2;
+        let newOffset = maxStroke - (score / 100) * maxStroke;
+        scoreCircle.style.strokeDashoffset = newOffset;
+    }
+}
+
+function uploadImage() {
+    const file = document.getElementById('imageInput').files[0];
+    if (!file) {
+        alert('กรุณาเลือกรูปภาพก่อน');
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const base64Image = e.target.result;
         const csrfToken = getCSRFToken();
 
-        // ฟังก์ชันแสดง Preview Image
-        function previewImage() {
-            const fileInput = document.getElementById('imageInput');
-            const previewContainer = document.getElementById('image-preview');
-            const previewImage = document.getElementById('preview-img');
-
-            const file = fileInput.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    previewImage.src = e.target.result;
-                    previewContainer.classList.remove('hidden');
-                };
-                reader.readAsDataURL(file);
+        fetch('/posture-detection/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken,
+            },
+            body: JSON.stringify({ image: base64Image, detect_type: 'Side-part Detection' })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                document.getElementById('result-message').textContent = `Error: ${data.error}`;
+                document.getElementById('result-details').innerHTML = '';
             } else {
-                previewImage.src = '';
-                previewContainer.classList.add('hidden');
+                document.getElementById('result-message').textContent = data.message;
+
+                const feedbackList = data.feedback.map(item => `<li>${item}</li>`).join('');
+                document.getElementById('feedback-section').innerHTML = `
+                    <h3 class="text-lg font-semibold text-orange-600 mt-4">Feedback:</h3>
+                    <ul class="list-disc list-inside text-gray-700 mt-2">${feedbackList}</ul>
+                `;
+                updateScore(data.score || 0);
             }
+            document.getElementById('result').classList.remove('hidden');
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('result-message').textContent = 'An unexpected error occurred.';
+            document.getElementById('result-details').innerHTML = '';
+            document.getElementById('result').classList.remove('hidden');
+        });
+    };
+    reader.readAsDataURL(file);
+}
+
+function getCSRFToken() {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.startsWith('csrftoken=')) {
+            return cookie.substring('csrftoken='.length, cookie.length);
         }
-
-        function uploadImage(detectType) {
-            const fileInput = document.getElementById('imageInput');
-            const file = fileInput.files[0];
-
-            if (!file) {
-                alert("Please upload an image!");
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onloadend = function() {
-                const base64Image = reader.result;
-
-                fetch('/posture-detection/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': csrfToken,
-                    },
-                    body: JSON.stringify({ image: base64Image , detect_type: detectType})
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        document.getElementById('result-message').textContent = `Error: ${data.error}`;
-                        document.getElementById('result-details').innerHTML = '';
-                        document.getElementById('result').classList.remove('hidden');
-                    } else {
-                        document.getElementById('result-message').textContent = data.message;
-                        document.getElementById('result-details').innerHTML = `
-                            <li><strong>Hip Angle:</strong> ${data.angles.hip_angle} degrees</li>
-                            <li><strong>Back Angle:</strong> ${data.angles.back_angle} degrees</li>
-                            <li><strong>Neck Angle:</strong> ${data.angles.neck_angle} degrees</li>
-                            <li><strong>Head Tilt Angle:</strong> ${data.angles.head_tilt_angle} degrees</li>
-                            <li><strong>Shoulder Symmetry:</strong> ${data.angles.shoulder_symmetry ? 'Symmetric' : 'Not Symmetric'}</li>
-                            <li><strong>Hip Symmetry:</strong> ${data.angles.hip_symmetry ? 'Symmetric' : 'Not Symmetric'}</li>
-                            <li><strong>Score:</strong> ${data.score} / 100</li>
-                        `;
-                        const feedbackList = data.feedback.map(item => `<li>${item}</li>`).join('');
-                        document.getElementById('feedback-section').innerHTML = `
-                            <h3 class="text-lg font-semibold text-blue-600 mt-4">Feedback:</h3>
-                            <ul class="list-disc list-inside text-gray-700 mt-2">${feedbackList}</ul>
-                        `;
-                        document.getElementById('result').classList.remove('hidden');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    document.getElementById('result-message').textContent = 'An unexpected error occurred.';
-                    document.getElementById('result-details').innerHTML = '';
-                    document.getElementById('result').classList.remove('hidden');
-                });
-            };
-            reader.readAsDataURL(file);
-        }
-    </script>
-</body>
+    }
+    return null;
+}
+</script>
 {% endblock %}

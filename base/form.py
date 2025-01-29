@@ -33,6 +33,8 @@ class PersonalInformationForm(forms.ModelForm):
         model = PersonalInformation
         fields = ['goal', 'job_name', 'job_type', 'job_hours', 'break_hours','age', 'height', 'weight', 'has_pain']
 
+        
+
 class UserChangeForm(forms.ModelForm):
     class Meta:
         model = UserInfomation

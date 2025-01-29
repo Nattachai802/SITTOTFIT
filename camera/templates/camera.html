@@ -1,40 +1,94 @@
 {% extends "base.html" %}
 {% block main %}
-<body class="bg-orange-50 font-sans">
-    <!-- Container -->
-    <div class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-md mt-12">
-        <h1 class="text-3xl font-bold text-center text-orange-600 mb-6">Camera Detection</h1>
+<body class="bg-gradient-to-br from-orange-200 via-orange-100 to-orange-50 font-sans min-h-screen py-12 animate-gradient-x">
+    <!-- Enhanced Glass Container -->
+    <div class="max-w-4xl mx-auto backdrop-blur-lg bg-white/20 p-8 rounded-3xl shadow-2xl border border-white/30 hover:shadow-orange-200/20 transition-all duration-300">
+        <h1 class="text-4xl font-light text-center text-orange-600 mb-8 hover:text-orange-500 transition-colors">Camera Detection</h1>
 
-        <!-- Camera Selection Dropdown -->
-        <div class="mb-4">
-            <label for="cameraSelect" class="block text-orange-600 font-medium mb-2">เลือกกล้อง:</label>
-            <select id="cameraSelect" class="w-full p-2 border border-orange-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
-                <option value="">กำลังโหลดรายการกล้อง...</option>
+        <!-- Modernized Camera Selection -->
+        <div class="mb-8 flex flex-row items-center gap-4 group">
+            <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="rgba(234,88,12,0.8)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="group-hover:scale-110 transition-transform"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+            <select id="cameraSelect" class="w-full p-4 bg-white/40 border border-orange-200/50 rounded-2xl focus:ring-4 focus:ring-orange-300/40 focus:border-transparent hover:shadow-lg transition-all backdrop-blur-sm text-orange-700 outline-none">
+                <option value="">เลือกกล้อง...</option>
             </select>
         </div>
 
-        <!-- Video Section -->
-        <div class="flex justify-center mb-6">
-            <video id="video" width="640" height="480" autoplay class="border-4 border-orange-200 rounded-lg shadow-lg"></video>
+        <!-- Enhanced Video Container -->
+        <div class="flex justify-center mb-10">
+            <div class="relative backdrop-blur-md bg-white/40 p-4 rounded-3xl border border-white/50 shadow-2xl hover:shadow-orange-200/30 transition-all duration-300 group">
+                <video id="video" width="640" height="480" autoplay class="rounded-2xl group-hover:shadow-lg transition-all"></video>
+                <div class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 px-4 py-2 bg-orange-500/80 rounded-full text-white text-sm backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    กำลังถ่ายทอดสด
+                </div>
+            </div>
         </div>
 
-        <!-- Capture Button -->
-        <div class="flex justify-between">
-            <button id="capture" onclick="captureFrame()" class="btn btn-primary bg-orange-500 hover:bg-orange-600 text-white rounded-lg px-6 py-2 shadow-lg">
-                Capture
-            </button>
-            <button id="next-page-button" onclick="goToNextPage()" class="btn btn-primary bg-green-500 hover:bg-green-600 text-white rounded-lg px-6 py-2 shadow-lg hidden">
-                ไปหน้าถัดไป
-            </button>
+        <!-- Enhanced Capture Buttons -->
+        <div class="flex flex-col items-center gap-6 mt-8">
+            <div class="flex gap-6">
+                <button onclick="captureFrame()" class="group px-10 py-4 bg-gradient-to-r from-orange-500/90 to-orange-400/90 hover:from-orange-600/90 hover:to-orange-500/90 text-white rounded-2xl shadow-lg backdrop-blur-sm transition-all hover:scale-105 font-light">
+                    <span class="flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="group-hover:scale-110 transition-transform"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+                        Capture
+                    </span>
+                </button>
+                <button id="next-page-button" onclick="showConfirmation()" class="group px-10 py-4 bg-gradient-to-r from-green-500/90 to-green-400/90 hover:from-green-600/90 hover:to-green-500/90 text-white rounded-2xl shadow-lg backdrop-blur-sm transition-all hover:scale-105 font-light disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                    <span class="flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="group-hover:transform group-hover:translate-x-1 transition-transform"><polyline points="9 18 15 12 9 6"/></svg>
+                        ไปหน้าถัดไป
+                    </span>
+                </button>
+            </div>
+
+            <!-- Enhanced Progress Steps -->
+            <div class="flex items-center gap-x-4 w-3/4">
+                <div class="w-full flex flex-col items-center">
+                    <div id="step-1" class="w-full h-1 bg-orange-200/50 rounded-full overflow-hidden transition-all duration-500">
+                        <div class="h-full w-0 bg-orange-500/80 transition-all duration-500"></div>
+                    </div>
+                    <span class="mt-3 text-sm text-orange-700/80">ตรวจสอบความสว่าง</span>
+                    <span class="tooltip" data-tip="ตรวจสอบให้มั่นใจว่าแสงสว่างเพียงพอและไม่มืดเกินไป">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(234,88,12,0.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mt-2"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>
+                    </span>
+                </div>
+
+                <div class="w-full flex flex-col items-center">
+                    <div id="step-2" class="w-full h-1 bg-orange-200/50 rounded-full overflow-hidden transition-all duration-500">
+                        <div class="h-full w-0 bg-orange-500/80 transition-all duration-500"></div>
+                    </div>
+                    <span class="mt-3 text-sm text-orange-700/80">นั่งอยู่บนเก้าอี้ไหม</span>
+                    <span class="tooltip" data-tip="ตรวจสอบให้มั่นใจว่ากล้องสามารถจับภาพคุณกำลังนั่งอยู่บนเก้าอี้ได้อย่างชัดเจน">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(234,88,12,0.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mt-2"><path d="M19 9V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v3"/><path d="M3 16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v1.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V11a2 2 0 0 0-4 0z"/><path d="M5 18v2"/><path d="M19 18v2"/></svg>
+                    </span>
+                </div>
+                <div class="w-full flex flex-col items-center">
+                    <div id="step-3" class="w-full h-1 bg-orange-200/50 rounded-full overflow-hidden transition-all duration-500">
+                        <div class="h-full w-0 bg-orange-500/80 transition-all duration-500"></div>
+                    </div>
+                    <span class="mt-3 text-sm text-orange-700/80">มองเห็นเต็มตัวไหม</span>
+                    <span class="tooltip" data-tip="ตรวจสอบให้มั่นใจว่ากล้องสามารถจับภาพคุณเห็นเต็มตัวได้อย่างชัดเจน">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(234,88,12,0.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mt-2"><circle cx="12" cy="5" r="1"/><path d="m9 20 3-6 3 6"/><path d="m6 8 6 2 6-2"/><path d="M12 10v4"/></svg>
+                    </span>
+                </div>
+            </div>
         </div>
 
-        <!-- Results Section -->
-        <div id="result" class="mt-8 bg-orange-100 p-6 rounded-lg shadow-md">
-            <h2 class="text-2xl font-semibold text-center text-orange-600 mb-4">Processing Result</h2>
-            <p id="result-message" class="text-center text-orange-700 text-lg"></p>
-            <ul id="result-details" class="list-none mt-4 text-gray-700 space-y-2">
-                <!-- Results will be dynamically populated here -->
-            </ul>
+        <!-- Enhanced Modal -->
+        <div id="confirmation-modal" class="fixed inset-0 items-center justify-center bg-black/40 backdrop-blur-sm hidden">
+            <div class="bg-white/80 backdrop-blur-md rounded-2xl p-8 shadow-xl max-w-md w-full mx-4 border border-white/50">
+                <h2 class="text-xl font-light text-orange-600 mb-4">ยืนยันการดำเนินการ</h2>
+                <p class="text-gray-600 mb-6 font-light">
+                    กล้องของคุณยังไม่พร้อมดีนักในการทำงาน คุณต้องการดำเนินการต่อหรือไม่?
+                </p>
+                <div class="flex justify-end gap-4">
+                    <button onclick="closeModal()" class="px-6 py-2 bg-gray-400/50 hover:bg-gray-500/50 text-white rounded-xl backdrop-blur-sm transition-all">
+                        ยกเลิก
+                    </button>
+                    <button onclick="goToNextPage()" class="px-6 py-2 bg-orange-500/80 hover:bg-orange-600/80 text-white rounded-xl backdrop-blur-sm transition-all">
+                        ยืนยัน
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -144,43 +198,97 @@
             .then(response => response.json())
             .then(data => {
                 if (data.error) {
-                    document.getElementById('result-message').textContent = `Error: ${data.error}`;
-                    document.getElementById('result-details').innerHTML = '';
-                    nextPageButton.classList.add('hidden');
+                    console.error(`Error: ${data.error}`);
                 } else {
-                    document.getElementById('result-message').textContent = data.message;
-                    document.getElementById('result-details').innerHTML = `
-                        <li><strong>Width:</strong> ${data.width}px</li>
-                        <li><strong>Height:</strong> ${data.height}px</li>
-                        <li><strong>Average Brightness:</strong> ${data.avg_brightness.toFixed(2)}</li>
-                        <li><strong>Is Low Brightness:</strong> ${data.is_low_brightness ? 'Yes' : 'No'}</li>
-                        <li><strong>Detections:</strong></li>
-                        <ul>
-                            ${data.detections.map(det => `
-                                <li>${det.class_name} (${det.confidence.toFixed(2)}%): [${det.bbox.join(', ')}]</li>
-                            `).join('')}
-                        </ul>
-                        <li><strong>Is Sitting on Chair:</strong> ${data.is_sitting ? 'Yes' : 'No'}</li>
-                        <li><strong>Is Fullbody? :</strong> ${data.is_full_body_detected ? 'Yes' : 'No'}</li>
-                    `;
-                    if (data.is_sitting && data.is_full_body_detected && !data.is_low_brightness) {
-                        nextPageButton.classList.remove('hidden');
-                    } else {
-                        nextPageButton.classList.add('hidden');
-                    }
+                    console.log(data.message);
+                    // เรียกอัปเดต Progress Bar พร้อมการหน่วงเวลา
+                    updateNextPageButton(data);
+                    updateProgressBarWithDelay(data);
                 }
             })
             .catch(error => {
                 console.error('Error processing image:', error);
-                document.getElementById('result-message').textContent = 'An unexpected error occurred.';
-                document.getElementById('result-details').innerHTML = '';
-                nextPageButton.classList.add('hidden');
             });
+        }
+        
+        function updateNextPageButton(data) {
+            const nextPageButton = document.getElementById('next-page-button');
+        
+            // ตรวจสอบเงื่อนไขที่ผ่าน
+            const conditionsPassed = [
+                !data.is_low_brightness, // เงื่อนไข 1: ความสว่างเพียงพอ
+                data.is_sitting,         // เงื่อนไข 2: กำลังนั่ง
+                data.is_full_body_detected, // เงื่อนไข 3: เห็นเต็มตัว
+            ].filter(Boolean).length; // นับเงื่อนไขที่ผ่าน
+        
+            if (conditionsPassed >= 1) {
+                // เมื่อผ่าน 1 ใน 3 เงื่อนไข
+                nextPageButton.classList.remove('opacity-50');  // ลบความโปร่งใส
+                nextPageButton.classList.remove('disabled:opacity-50');
+                nextPageButton.classList.remove('disabled:cursor-not-allowed');
+                nextPageButton.classList.add('opacity-100');   // เพิ่มความทึบ
+                nextPageButton.removeAttribute('disabled');
+            } else {
+                // เมื่อไม่ผ่านเงื่อนไขใดๆ
+                nextPageButton.classList.add('opacity-50');
+                nextPageButton.classList.add('disabled:opacity-50');
+                nextPageButton.classList.add('disabled:cursor-not-allowed');
+                nextPageButton.classList.remove('opacity-100');
+                nextPageButton.setAttribute('disabled', true);
+            }
+        }
+        
+        function showConfirmation() {
+            const modal = document.getElementById('confirmation-modal');
+            modal.classList.remove('hidden');
+        }
+        
+        function closeModal() {
+            const modal = document.getElementById('confirmation-modal');
+            modal.classList.add('hidden');
         }
 
         // ฟังก์ชั่นสำหรับเปลี่ยนไปหน้าถัดไป (เหมือนเดิม)
         function goToNextPage() {
             window.location.href = '/Estimation/';
+        }
+
+        // ฟังก์ชันสำหรับอัปเดต Progress Bar พร้อมการหน่วงเวลา
+        function updateProgressBarWithDelay(data) {
+            // ตัวอย่างข้อมูลสถานะ (0 = ยังไม่สำเร็จ, 1 = สำเร็จ)
+            const progressData = [
+                { step: "step-1", status: data.is_low_brightness ? 0 : 1 },
+                { step: "step-2", status: data.is_sitting ? 1 : 0 },
+                { step: "step-3", status: data.is_full_body_detected ? 1 : 0 },
+            ];
+        
+            const percentageElement = document.getElementById("percentage");
+        
+            // รีเซ็ตสีของ Progress Bar ก่อนเริ่มการตรวจสอบใหม่
+            progressData.forEach(item => {
+                const stepElement = document.getElementById(item.step);
+                stepElement.classList.remove("bg-blue-600", "dark:bg-blue-500", "bg-red-600", "dark:bg-red-500");
+                stepElement.classList.add("bg-gray-300", "dark:bg-neutral-600");
+            });
+        
+            // ฟังก์ชันเพื่อเปลี่ยนสถานะทีละขั้นตอน
+            progressData.forEach((item, index) => {
+                setTimeout(() => {
+                    const stepElement = document.getElementById(item.step);
+        
+                    if (item.status === 1) {
+                        // ถ้าสถานะสำเร็จ ให้เป็นสีน้ำเงิน
+                        stepElement.classList.remove("bg-gray-300", "dark:bg-neutral-600");
+                        stepElement.classList.add("bg-blue-600", "dark:bg-blue-500");
+                    } else {
+                        // ถ้าสถานะไม่สำเร็จ ให้เป็นสีแดง
+                        stepElement.classList.remove("bg-gray-300", "dark:bg-neutral-600");
+                        stepElement.classList.add("bg-red-600", "dark:bg-red-500");
+                    }
+        
+                    // อัปเดตเปอร์เซ็นต์
+                }, index * 1000); // หน่วงเวลา 1000ms (1 วินาที) สำหรับแต่ละขั้นตอน
+            });
         }
     </script>
 </body>

@@ -1,43 +1,50 @@
 {% extends 'base.html' %}
 
 {% block main %}
-<div class="container mx-auto p-6">
-  <!-- หัวข้อ -->
-  <h2 class="text-3xl font-bold text-gray-800 mb-6">อัปเดตข้อมูล</h2>
-  
+  <div class="max-w-4xl mx-auto backdrop-blur-lg bg-white/20 p-8 rounded-3xl shadow-2xl border border-white/30 hover:shadow-orange-200/20 transition-all duration-300">
+    <!-- Header -->
+    <h2 class="text-3xl font-light text-orange-600 mb-6">อัปเดตข้อมูล</h2>
 
-  <form method="post" class="bg-white shadow-md rounded-lg p-6 space-y-6">
-    {% csrf_token %}
-    
-    <!-- ฟอร์ม -->
-    <div class="space-y-4">
-          <!-- ข้อความเพิ่มเติม -->
-    {% if form_type == 'personal_information' %}
-    <div class="bg-blue-50 p-4 rounded-lg border border-blue-200 text-blue-700">
-      <h3 class="text-xl font-semibold mb-2">ข้อมูลส่วนตัว</h3>
-      <p>กรุณากรอกข้อมูลเกี่ยวกับอาชีพและเป้าหมายของคุณ</p>
-    </div>
-  {% elif form_type == 'personal_health_information' %}
-    <div class="bg-green-50 p-4 rounded-lg border border-green-200 text-green-700">
-      <h3 class="text-xl font-semibold mb-2">ข้อมูลสุขภาพ</h3>
-      <p>กรุณากรอกข้อมูลสุขภาพของคุณ</p>
-    </div>
-  {% endif %}
-      {{ form.as_p }}
-    </div>
+    <form method="post" class="space-y-6">
+      {% csrf_token %}
+      
+      <!-- Form Sections -->
+      <div class="space-y-4">
+        <div class="backdrop-blur-md bg-white/30 p-6 rounded-2xl border border-white/50 shadow-lg">
+          <h3 class="text-xl font-light text-orange-600 mb-2">ข้อมูลส่วนตัว</h3>
+          <p class="text-orange-700/70">กรุณากรอกข้อมูลเกี่ยวกับอาชีพและเป้าหมายของคุณ</p>
+        </div>
 
+        <!-- Custom Form Rendering -->
+        <div class="space-y-6">
+          {% for field in form %}
+          <div class="form-group backdrop-blur-md bg-white/30 p-6 rounded-2xl border border-white/50 shadow-lg">
+            <label class="block text-orange-600 mb-2 font-light">{{ field.label }}</label>
+            {{ field }}
+            {% if field.help_text %}
+            <small class="text-orange-600/70 mt-1 block">{{ field.help_text }}</small>
+            {% endif %}
+            {% if field.errors %}
+            <div class="text-red-500 mt-1">
+              {{ field.errors }}
+            </div>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
 
-
-    <!-- ปุ่มบันทึก -->
-    <div class="flex items-center space-x-4">
-      <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg shadow">
-        บันทึกข้อมูล
-      </button>
-      <a href="{% url 'base:home' %}" 
-         class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded-lg shadow">
-        ยกเลิก
-      </a>
-    </div>
-  </form>
-</div>
+      <!-- Buttons -->
+      <div class="flex items-center space-x-4">
+        <button type="submit" 
+                class="px-6 py-3 bg-gradient-to-r from-orange-500/90 to-orange-400/90 hover:from-orange-600/90 hover:to-orange-500/90 text-white rounded-xl shadow-lg backdrop-blur-sm transition-all hover:scale-105 font-light">
+          บันทึกข้อมูล
+        </button>
+        <a href="{% url 'base:home' %}" 
+           class="px-6 py-3 bg-gradient-to-r from-gray-500/90 to-gray-400/90 hover:from-gray-600/90 hover:to-gray-500/90 text-white rounded-xl shadow-lg backdrop-blur-sm transition-all hover:scale-105 font-light">
+          ยกเลิก
+        </a>
+      </div>
+    </form>
+  </div>
 {% endblock %}

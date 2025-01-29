@@ -1,50 +1,62 @@
 {% extends "base.html" %}
 {% block main %}
-<div class="bg-orange-400 p-6 rounded-lg shadow-lg my-5 flex flex-col items-start">
-    <div class="mb-3">
-        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-aperture"><circle cx="12" cy="12" r="10"/><path d="m14.31 8 5.74 9.94"/><path d="M9.69 8h11.48"/><path d="m7.38 12 5.74-9.94"/><path d="M9.69 16 3.95 6.06"/><path d="M14.31 16H2.83"/><path d="m16.62 12-5.74 9.94"/></svg>
-    </div>
-    <h1 class="text-3xl font-bold text-white text-center">Posture Detection</h1>
-    <p class="text-lg text-orange-100 mt-2 text-center">
-        ตรวจจับท่านั่ง
-    </p>
-</div>
-<div class="flex justify-center items-center min-h-screen bg-orange-50">
-  <div class='flex space-x-8'>
-    <div class="card w-96 bg-orange-100 shadow-md border border-orange-200 rounded-lg">
-      <figure class="px-10 pt-10">
-        <img src="http://127.0.0.1:8000/static/images/sitting.png" alt="Illustration" class="rounded-xl w-27 h-27 object-contain mx-auto">
-      </figure>
-      <div class="card-body items-center text-center">
-        <h2 class="card-title text-xl font-semibold text-orange-600">Side-Part Detection</h2>
-        <p class="text-orange-700 text-sm">
-          ตรวจจับผ่านกล้องถ่ายภาพสด (กล้องต้องวางอยู่ด้านข้าง) จำเป็นต้องติดตั้งกล้อง ซึ่งสามารถตรวจสอบได้อย่างละเอียด
-        </p>
-        <div class="card-actions mt-4">
-          <a href= {% url 'camera:camera_detection' %} class="btn btn-primary bg-orange-500 hover:bg-orange-600 text-white rounded-lg px-6 py-2">
-            เริ่มทำการตรวจสอบ
-          </a>
+<body class="bg-gradient-to-br from-orange-100 via-orange-50 to-white font-sans min-h-screen py-12">
+    <div class="max-w-5xl mx-auto backdrop-blur-lg bg-white/20 p-8 rounded-3xl shadow-2xl border border-white/30 hover:shadow-orange-200/20 transition-all duration-300">
+        
+        <!-- Header -->
+        <div class="mb-8 text-center">
+            <h1 class="text-4xl font-light text-orange-600 tracking-wide">ตรวจจับท่านั่ง</h1>
+            <p class="text-orange-500/80 text-lg mt-2">เลือกโหมดการตรวจจับที่คุณต้องการ</p>
         </div>
-      </div>
-    </div>
-    <div class="card w-96 bg-orange-100 shadow-md border border-orange-200 rounded-lg">
-      <figure class="px-10 pt-10 flex justify-center items-center">
-        <img src="http://127.0.0.1:8000/static/images/camera.png" alt="Illustration" class="rounded-xl w-35 h-35 object-contain mx-auto my-auto">
-      </figure>
-      <div class="card-body items-center text-center">
-        <br><br><br><br><br>
-        <h2 class="card-title text-xl font-semibold text-orange-600">Photo Detection</h2>
-        <p class="text-orange-700 text-sm">
-          ตรวจจับผ่านภาพถ่ายที่ผู้ใช้งานส่งเข้ามา เหมาะสำหรับคนที่ไม่มีพื้นที่ในการติดตั้งกล้อง
-        </p>
-        <div class="card-actions mt-4">
-          <a href= {% url 'camera:Image-upload' %} class="btn btn-primary bg-orange-500 hover:bg-orange-600 text-white rounded-lg px-6 py-2">
-            เริ่มทำการตรวจสอบ
-          </a>
+
+        <!-- Cards Container -->
+        <div class="flex justify-center gap-10">
+            <!-- Card: Photo Detection -->
+            <div class="card w-96 backdrop-blur-md bg-white/40 rounded-3xl border border-white/50 shadow-xl hover:shadow-orange-200/30 transition-all duration-300 overflow-hidden group flex flex-col">
+                <figure class="px-8 pt-8">
+                    <img src="http://127.0.0.1:8000/static/images/camera.png" alt="Photo Detection" 
+                         class="rounded-xl w-full h-64 object-contain mx-auto group-hover:scale-105 transition-transform duration-300">
+                </figure>
+                <div class="card-body p-6 text-center flex flex-col flex-grow">
+                    <h2 class="text-xl font-semibold text-orange-600">Photo Detection</h2>
+                    <p class="text-orange-600/80 mt-2 min-h-16 flex items-center justify-center">
+                        ตรวจจับท่าทางการนั่งจากภาพถ่าย เพื่อวิเคราะห์ท่านั่งของคุณ
+                    </p>
+                    <div class="mt-auto"> 
+                        <a href="{% url 'camera:Image-upload' %}" 
+                           class="px-6 py-3 bg-orange-500/90 text-white rounded-xl shadow-lg transition-all hover:scale-105 flex items-center justify-center gap-2">
+                            <span>เริ่มต้นใช้งาน</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="9 18 15 12 9 6"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card: Real-time Detection -->
+            <div class="card w-96 backdrop-blur-md bg-white/40 rounded-3xl border border-white/50 shadow-xl hover:shadow-orange-200/30 transition-all duration-300 overflow-hidden group flex flex-col">
+                <figure class="px-8 pt-8">
+                    <img src="http://127.0.0.1:8000/static/images/sitting.png" alt="Real-time Detection" 
+                         class="rounded-xl w-full h-64 object-contain mx-auto group-hover:scale-105 transition-transform duration-300">
+                </figure>
+                <div class="card-body p-6 text-center flex flex-col flex-grow">
+                    <h2 class="text-xl font-semibold text-orange-600">Real-time Detection</h2>
+                    <p class="text-orange-600/80 mt-2 min-h-16 flex items-center justify-center">
+                        ตรวจจับท่าทางการนั่งแบบเรียลไทม์ เพื่อติดตามท่านั่งของคุณ
+                    </p>
+                    <div class="mt-auto">
+                        <a href="{% url 'camera:camera_detection' %}" 
+                           class="px-6 py-3 bg-orange-500/90 text-white rounded-xl shadow-lg transition-all hover:scale-105 flex items-center justify-center gap-2">
+                            <span>เริ่มต้นใช้งาน</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="9 18 15 12 9 6"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
-  </div>
-  
+</body>
 {% endblock %}

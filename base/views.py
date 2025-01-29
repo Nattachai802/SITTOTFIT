@@ -15,6 +15,7 @@ from django.core.mail import send_mail
 from django.shortcuts import render
 from django.http import HttpResponse
 
+
 def classify_bmi(bmi):
     if bmi < 16:
         return "Severe Thinness"
@@ -61,6 +62,7 @@ class HomepageView(LoginRequiredMixin, ListView):
     context_object_name = 'User_items'
     
     def get_queryset(self):
+
         return UserInfomation.objects.filter(id=self.request.user.id)
 
     def get_context_data(self, **kwargs):
@@ -77,6 +79,7 @@ class HomepageView(LoginRequiredMixin, ListView):
         else:
             context['bmi'] = None
             context['bmi_category'] = "Not Available"
+        
 
         return context
 

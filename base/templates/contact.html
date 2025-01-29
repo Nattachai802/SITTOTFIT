@@ -1,10 +1,47 @@
 {% extends 'base.html' %}
 
 {% block main %}
-<h2>Contact Us</h2>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Send</button>
-</form>
+<div class="max-w-3xl mx-auto backdrop-blur-lg bg-white/20 p-8 rounded-3xl shadow-2xl border border-white/30 hover:shadow-orange-200/20 transition-all duration-300">
+    
+    <!-- Header -->
+    <h2 class="text-4xl font-light text-center text-orange-600 mb-6">ติดต่อเรา</h2>
+    <p class="text-center text-orange-500/80 text-lg">หากมีคำถามหรือข้อเสนอแนะ กรุณาส่งข้อความถึงเรา</p>
+
+    <!-- Form -->
+    <form method="post" class="mt-6 space-y-6">
+        {% csrf_token %}
+
+        <!-- Name Field -->
+        <div>
+            <label class="block text-lg font-light text-orange-700 mb-2">ชื่อของคุณ</label>
+            <input type="text" name="name" required 
+                class="form-input w-full p-3 rounded-xl border-gray-300 focus:ring-orange-400 focus:border-orange-500 bg-white/50 shadow-md backdrop-blur-md transition-all duration-300"
+                placeholder="กรอกชื่อของคุณ">
+        </div>
+
+        <!-- Email Field -->
+        <div>
+            <label class="block text-lg font-light text-orange-700 mb-2">อีเมล</label>
+            <input type="email" name="email" required 
+                class="form-input w-full p-3 rounded-xl border-gray-300 focus:ring-orange-400 focus:border-orange-500 bg-white/50 shadow-md backdrop-blur-md transition-all duration-300"
+                placeholder="กรอกอีเมลของคุณ">
+        </div>
+
+        <!-- Message Field -->
+        <div>
+            <label class="block text-lg font-light text-orange-700 mb-2">ข้อความ</label>
+            <textarea name="message" required rows="5"
+                class="form-textarea w-full p-3 rounded-xl border-gray-300 focus:ring-orange-400 focus:border-orange-500 bg-white/50 shadow-md backdrop-blur-md transition-all duration-300"
+                placeholder="พิมพ์ข้อความของคุณที่นี่"></textarea>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="flex justify-center">
+            <button type="submit" 
+                class="px-6 py-3 bg-gradient-to-r from-orange-500/90 to-orange-400/90 hover:from-orange-600/90 hover:to-orange-500/90 text-white rounded-xl shadow-lg backdrop-blur-sm transition-all hover:scale-105 font-light">
+                ส่งข้อความ
+            </button>
+        </div>
+    </form>
+</div>
 {% endblock %}
