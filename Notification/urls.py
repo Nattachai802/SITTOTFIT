@@ -17,10 +17,11 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path , include
-from .views import notification_settings_view , save_fcm_token
+from .views import notification_settings_view , save_fcm_token , app_to_pdf
 app_name = 'Notification'
 
 urlpatterns = [
     path('notification/', notification_settings_view, name='notification'),
     path('save-fcm-token/', save_fcm_token, name='save_fcm_token'),
+    path('export-code/<str:app_name>/', app_to_pdf, name='export_code'),
 ]

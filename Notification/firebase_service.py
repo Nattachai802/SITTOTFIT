@@ -1,5 +1,6 @@
 from firebase_admin import credentials, messaging, initialize_app
 import firebase_admin
+import time
 
 # Initialize Firebase
 cred = credentials.Certificate(r"Notification\key\sit-to-fit-40890-firebase-adminsdk-tt616-ee3b9a7e1d.json")
@@ -11,28 +12,50 @@ def send_multiple_notifications(registration_tokens, title, body):
     """
     ส่ง Push Notification ไปยังหลาย Token พร้อมกัน
     """
-    print(registration_tokens)
     if not registration_tokens:
         print("No registration tokens provided.")
         return None
 
-    # Ensure registration_tokens is a list of strings (even if only one token is provided)
+    # แปลง single token เป็น list ถ้าจำเป็น
     if isinstance(registration_tokens, str):
         registration_tokens = [registration_tokens]
     
-
-
-    message = messaging.Message(
-        notification=messaging.Notification(
-            title=title,
-            body=body
-        ),
-        token=registration_tokens[0]  
-    )
-
-    try:
-        response = messaging.send(message)
-        print(response)
-    except Exception as e:
-        print(f"Error sending notifications: {e}")
-        return None
+    success_count = 0
+    failure_count = 0
+    
+    for token in registration_tokens:
+        try:
+            message = messaging.Message(
+                notification=messaging.Notification(
+                    title=title,
+                    body=body
+                ),
+                webpush=messaging.WebpushConfig(
+                    notification=messaging.WebpushNotification(
+                        icon='/static/images/logo.jpg',
+                        tag=str(int(time.time() * 1000))  # ใช้ timestamp เป็น tag
+                    ),
+                    headers={
+                        'Urgency': 'high'
+                    }
+                ),
+                data={
+                    'timestamp': str(int(time.time() * 1000))
+                },
+                token=token
+            )
+            
+            response = messaging.send(message)
+            print(f"Successfully sent to token: {token}")
+            success_count += 1
+            
+        except Exception as e:
+            print(f"Failed to send to token {token}: {e}")
+            failure_count += 1
+    
+    print(f"Completed sending notifications:")
+    print(f"Success: {success_count}")
+    print(f"Failed: {failure_count}")
+    print(f"Total: {len(registration_tokens)}")
+    
+    return success_count > 0

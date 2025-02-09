@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'Dashborad',
     "fcm_django",
     'django_apscheduler',
+    'django_extensions',
     "Notification",
     'channels',
     'camera',

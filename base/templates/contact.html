@@ -2,7 +2,6 @@
 
 {% block main %}
 <div class="max-w-3xl mx-auto backdrop-blur-lg bg-white/20 p-8 rounded-3xl shadow-2xl border border-white/30 hover:shadow-orange-200/20 transition-all duration-300">
-    
     <!-- Header -->
     <h2 class="text-4xl font-light text-center text-orange-600 mb-6">ติดต่อเรา</h2>
     <p class="text-center text-orange-500/80 text-lg">หากมีคำถามหรือข้อเสนอแนะ กรุณาส่งข้อความถึงเรา</p>
@@ -43,5 +42,15 @@
             </button>
         </div>
     </form>
+
+    {% if success %}
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'ขอบคุณที่ติดต่อเรา!',
+            text: 'เราจะติดต่อกลับคุณในเร็วๆ นี้',
+        });
+    </script>
+    {% endif %}
 </div>
 {% endblock %}

@@ -13,14 +13,62 @@ firebase.initializeApp({
   });
 const messaging = firebase.messaging();
 
+let lastNotificationId = null;
+let lastNotificationTime = 0;
+const NOTIFICATION_THRESHOLD = 1000; // 1 วินาที
+
 // ฟังก์ชันที่ใช้ในการรับการแจ้งเตือน
 messaging.onBackgroundMessage(function(payload) {
-  console.log('Message received. ', payload);
-  const notificationTitle = payload.notification.title;
-  const notificationOptions = {
-    body: payload.notification.body,
-    icon: 'http://127.0.0.1:8000/static/images/logo.jpg'
-  };
+    console.log('Message received in SW:', payload);
+    
+    const currentTime = Date.now();
+    if (currentTime - lastNotificationTime < NOTIFICATION_THRESHOLD) {
+        console.log('Skipping duplicate notification');
+        return;
+    }
+    
+    lastNotificationTime = currentTime;
+    
+    const notificationOptions = {
+        body: payload.notification.body,
+        icon: '/static/images/logo.jpg',
+        tag: currentTime.toString(),
+        renotify: false,
+        requireInteraction: false,
+        silent: false,
+        data: {
+            notificationId: currentTime.toString()
+        }
+    };
+    
+    return self.registration.showNotification(
+        payload.notification.title, 
+        notificationOptions
+    );
+});
 
-  self.registration.showNotification(notificationTitle, notificationOptions);
+// จัดการกับการคลิก notification
+self.addEventListener('notificationclick', function(event) {
+    console.log('Notification clicked:', event);
+    event.notification.close();
+    
+    const urlToOpen = new URL('/', self.location.origin).href;
+    
+    const promiseChain = clients.matchAll({
+        type: 'window',
+        includeUncontrolled: true
+    })
+    .then((windowClients) => {
+        for (let i = 0; i < windowClients.length; i++) {
+            const client = windowClients[i];
+            if (client.url === urlToOpen && 'focus' in client) {
+                return client.focus();
+            }
+        }
+        if (clients.openWindow) {
+            return clients.openWindow(urlToOpen);
+        }
+    });
+    
+    event.waitUntil(promiseChain);
 });

@@ -4,5 +4,4 @@ class BaseConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'base'
 
-    def ready(self):
-        import base.signal  # นำเข้า signals เพื่อเชื่อมต่อ
+

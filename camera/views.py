@@ -14,17 +14,18 @@ from base.models import PostureDetection , UserUsageHistory
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 
-class CameraDetectionView(TemplateView):
+class CameraDetectionView(LoginRequiredMixin,TemplateView):
     template_name = 'camera.html'
 
-class Selection_hubView(TemplateView):
+class Selection_hubView(LoginRequiredMixin,TemplateView):
     template_name = 'selection_hub.html'
 
-class Detection_View(TemplateView):
+class Detection_View(LoginRequiredMixin,TemplateView):
     template_name = 'detection.html'
 
-class Image_View(TemplateView):
+class Image_View(LoginRequiredMixin,TemplateView):
     template_name = 'upload_image.html'
 
 # โหลดโมเดล YOLOv8

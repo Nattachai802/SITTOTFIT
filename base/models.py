@@ -67,12 +67,4 @@ class UserUsageHistory(models.Model):
         return f'{self.posture_detection.user.username} - {self.detect_type} - Detection Time: {self.detection_time}'
 
 
-class NotificationLog(models.Model):
-    user = models.ForeignKey(UserInfomation, on_delete=models.CASCADE)
-    message = models.TextField()
-    notification_time = models.DateTimeField(auto_now_add=True)
-    admin_message = models.TextField(blank=True)
-
-    def __str__(self):
-        return f'Notification for {self.user.username} at {self.notification_time}'
 

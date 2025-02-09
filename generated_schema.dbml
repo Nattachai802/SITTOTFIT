@@ -1,0 +1,118 @@
+Table logentry {
+  id integer
+  action_time timestamp
+  user_id integer [note: 'foreign key to userinfomation']
+  content_type_id integer [note: 'foreign key to contenttype']
+  object_id text
+  object_repr varchar
+  action_flag integer
+  change_message text
+}
+
+Table permission {
+  id integer
+  name varchar
+  content_type_id integer [note: 'foreign key to contenttype']
+  codename varchar
+}
+
+Table group {
+  id integer
+  name varchar
+}
+
+Table contenttype {
+  id integer
+  app_label varchar
+  model varchar
+}
+
+Table session {
+  session_key varchar
+  session_data text
+  expire_date timestamp
+}
+
+Table userinfomation {
+  id integer
+  password varchar
+  last_login timestamp
+  username varchar
+  first_name varchar
+  last_name varchar
+  email varchar
+  date_joined timestamp
+  contact_number varchar
+  role varchar
+  created_at timestamp
+}
+
+Table personalinformation {
+  id integer
+  user_id integer [note: 'foreign key to userinfomation']
+  goal varchar
+  job_name varchar
+  job_type varchar
+  age integer
+}
+
+Table posturedetection {
+  id integer
+  user_id integer [note: 'foreign key to userinfomation']
+  timestamp timestamp
+  score integer
+}
+
+Table userusagehistory {
+  id integer
+  posture_detection_id integer [note: 'foreign key to posturedetection']
+  detect_type varchar
+}
+
+Table fcmdevice {
+  id integer
+  name varchar
+  user_id integer [note: 'foreign key to userinfomation']
+  date_created timestamp
+  device_id varchar
+  registration_id text
+  type varchar
+}
+
+Table djangojob {
+  id varchar
+  next_run_time timestamp
+}
+
+Table djangojobexecution {
+  id integer
+  job_id integer [note: 'foreign key to djangojob']
+  status varchar
+  run_time timestamp
+  exception varchar
+  traceback text
+}
+
+Table fcmtoken {
+  id integer
+  user_id integer [note: 'foreign key to userinfomation']
+  token varchar
+  updated_at timestamp
+}
+
+Table notificationsettings {
+  id integer
+  user_id integer [note: 'foreign key to userinfomation']
+  interval_minutes integer
+}
+
+Ref: logentry.user_id > userinfomation.id // many-to-one
+Ref: logentry.content_type_id > contenttype.id // many-to-one
+Ref: permission.content_type_id > contenttype.id // many-to-one
+Ref: personalinformation.user_id > userinfomation.id // many-to-one
+Ref: posturedetection.user_id > userinfomation.id // many-to-one
+Ref: userusagehistory.posture_detection_id > posturedetection.id // many-to-one
+Ref: fcmdevice.user_id > userinfomation.id // many-to-one
+Ref: djangojobexecution.job_id > djangojob.id // many-to-one
+Ref: fcmtoken.user_id > userinfomation.id // many-to-one
+Ref: notificationsettings.user_id > userinfomation.id // many-to-one

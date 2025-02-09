@@ -5,58 +5,88 @@ from .firebase_service import send_multiple_notifications
 from django_apscheduler.models import DjangoJobExecution
 from django.db import transaction
 import threading
+from datetime import datetime, timedelta
 
 # สร้าง BackgroundScheduler
 scheduler = BackgroundScheduler()
-
-# ตัวแปรล็อคเพื่อป้องกันการทำงานซ้ำ
 lock = threading.Lock()
 
-def send_notifications():
+def send_notifications(interval):
     """
     ฟังก์ชันที่รันตาม Scheduler เพื่อส่ง Notification
+    Args:
+        interval (int): ระยะเวลาการแจ้งเตือนเป็นนาที
     """
-    # ใช้ lock เพื่อป้องกันการทำงานซ้ำ
     with lock:
-        settings_list = NotificationSettings.objects.filter(is_enabled=True)
-        tokens = []  # เก็บ FCM Token ที่ต้องส่ง
+        try:
+            print(f"Running notification job for interval: {interval} minutes")
+            
+            # ดึงเฉพาะผู้ใช้ที่มีการตั้งค่าตรงกับ interval ที่ระบุ
+            settings_list = NotificationSettings.objects.filter(
+                is_enabled=True,
+                interval_minutes=interval
+            ).select_related('user')
+            
+            tokens = []
+            for settings in settings_list:
+                try:
+                    fcm_token = FCMToken.objects.get(user=settings.user)
+                    if fcm_token.token:
+                        tokens.append(fcm_token.token)
+                except FCMToken.DoesNotExist:
+                    print(f"ไม่มี FCM Token สำหรับผู้ใช้ {settings.user.username}")
+                    continue
+            
+            if tokens:
+                print(f"Sending notifications for {interval} minute interval to {len(tokens)} users")
+                send_multiple_notifications(
+                    tokens,
+                    "การแจ้งเตือนออกกำลังกาย",
+                    f"ถึงเวลาออกกำลังกายแล้ว! (แจ้งเตือนทุก {interval} นาที)"
+                )
+            else:
+                print(f"No users to notify for {interval} minute interval")
+                
+        except Exception as e:
+            print(f"Error in send_notifications for interval {interval}: {e}")
 
-        for settings in settings_list:
-            try:
-                fcm_token = FCMToken.objects.get(user=settings.user).token
-                tokens.append(fcm_token)
-            except FCMToken.DoesNotExist:
-                print(f"ไม่มี FCM Token สำหรับผู้ใช้ {settings.user.username}")
+def create_notification_job(interval):
+    """
+    สร้าง job สำหรับการแจ้งเตือนที่ interval ที่กำหนด
+    Args:
+        interval (int): ระยะเวลาการแจ้งเตือนเป็นนาที
+    """
+    job_id = f'send_notifications_job_{interval}'
+    scheduler.add_job(
+        send_notifications,
+        'interval',
+        minutes=interval,
+        id=job_id,
+        args=[interval],
+        replace_existing=True,
+        next_run_time=datetime.now()  # เริ่มทำงานทันที
+    )
+    print(f"Created notification job for {interval} minute interval with ID: {job_id}")
 
-        # ส่ง Notification หากมี token
-        if tokens:
-            send_multiple_notifications(tokens, "การแจ้งเตือน", "คุณได้รับการแจ้งเตือนตามการตั้งค่าของคุณ")
-
-# เพิ่ม JobStore และ Job
 def start_scheduler():
-    print('start_corn')
+    print("Starting scheduler...")
     try:
-        # ถ้าหาก scheduler เริ่มไปแล้ว ให้ไม่เริ่มใหม่
         if not scheduler.running:
             scheduler.add_jobstore(DjangoJobStore(), "default")
-
-            # ตรวจสอบว่ามี job นี้อยู่แล้วหรือไม่
-            existing_job = scheduler.get_job('send_notifications_job')
-            if existing_job:
-                print("Job already exists, skipping job creation.")
-            else:
-                # เพิ่ม Job ส่ง Notification
-                scheduler.add_job(
-                    send_notifications, 
-                    'interval', 
-                    minutes=15, 
-                    id='send_notifications_job',  # ID ของงาน
-                    replace_existing=True
-                )
-
+            
+            # ลบ jobs เก่า
+            for job in scheduler.get_jobs():
+                scheduler.remove_job(job.id)
+                print(f"Removed existing job: {job.id}")
+            
+            # สร้าง jobs ใหม่
+            intervals = [1, 45, 60]
+            for interval in intervals:
+                create_notification_job(interval)
+            
             scheduler.start()
             print("Scheduler started successfully")
         else:
-            print("Scheduler is already running.")
+            print("Scheduler is already running")
     except Exception as e:
         print(f"Error starting scheduler: {e}")

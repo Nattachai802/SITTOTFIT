@@ -146,11 +146,11 @@ def contact_view(request):
                 email,  # Email ผู้ส่ง
                 ['sittofit.noreply@gmail.com'],  # Email ทีมพัฒนา
             )
-            return HttpResponse("Thank you for contacting us.")
+            return render(request, 'contact.html', {'form': form, 'success': True})
     else:
         form = ContactForm()
 
-    return render(request, 'contact.html', {'form': form})
+    return render(request, 'contact.html', {'form': form, 'success': False})
 
 class InstructionsView(TemplateView):
     template_name = 'Howto.html'

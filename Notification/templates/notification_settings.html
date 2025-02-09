@@ -2,13 +2,27 @@
 {% block main %}
 <body class="bg-gradient-to-br from-orange-200 via-orange-100 to-orange-50 font-sans min-h-screen py-12 animate-gradient-x">
     <div class="max-w-4xl mx-auto backdrop-blur-lg bg-white/20 p-8 rounded-3xl shadow-2xl border border-white/30 hover:shadow-orange-200/20 transition-all duration-300">
-        <h1 class="text-4xl font-light text-center text-orange-600 mb-8 hover:text-orange-500 transition-colors">ตั้งค่าการแจ้งเตือน</h1>
-        
-        <!-- Settings Form Container -->
+        <h1 class="text-4xl font-light text-center text-orange-600 mb-8 hover:text-orange-500 transition-colors">
+            ตั้งค่าการแจ้งเตือน
+        </h1>
+
+        <!-- Flash Messages -->
+        {% if messages %}
+        <div class="mb-6">
+            {% for message in messages %}
+            <div class="p-4 text-white text-center rounded-xl 
+                        {% if message.tags == 'success' %} bg-green-500 {% elif message.tags == 'error' %} bg-red-500 {% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Settings Form -->
         <div class="space-y-6">
             <form method="post" class="space-y-8">
                 {% csrf_token %}
-                
+
                 <!-- Notification Toggle -->
                 <div class="backdrop-blur-md bg-white/30 p-6 rounded-2xl border border-white/50 shadow-lg hover:shadow-orange-200/30 transition-all duration-300">
                     <label class="flex items-center justify-between">
@@ -18,7 +32,7 @@
                         </div>
                     </label>
                 </div>
-                
+
                 <!-- Interval Setting -->
                 <div class="backdrop-blur-md bg-white/30 p-6 rounded-2xl border border-white/50 shadow-lg hover:shadow-orange-200/30 transition-all duration-300">
                     <label class="block space-y-4">
@@ -30,9 +44,10 @@
                 </div>
 
                 <!-- Submit Button -->
-                <button type="submit" 
+                <button type="submit"
                     class="w-full px-10 py-4 bg-gradient-to-r from-orange-500/90 to-orange-400/90 hover:from-orange-600/90 hover:to-orange-500/90 text-white rounded-2xl shadow-lg backdrop-blur-sm transition-all hover:scale-105 font-light flex items-center justify-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="group-hover:transform group-hover:translate-x-1 transition-transform">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="group-hover:transform group-hover:translate-x-1 transition-transform">
                         <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
                         <polyline points="17 21 17 13 7 13 7 21"/>
                         <polyline points="7 3 7 8 15 8"/>
@@ -44,22 +59,25 @@
     </div>
 </body>
 
-{% if message %}
+<!-- SweetAlert2 Notification -->
+{% if messages %}
 <script>
-    Swal.fire({
-        icon: 'success',
-        title: 'บันทึกเรียบร้อยแล้ว',
-        text: '{{ message }}',
-        showConfirmButton: false,
-        timer: 1500,
-        background: 'rgba(255,255,255,0.9)',
-        backdrop: 'rgba(255,237,213,0.4)',
-        customClass: {
-            popup: 'rounded-3xl backdrop-blur-md border border-orange-200',
-            title: 'text-orange-600',
-            content: 'text-orange-700'
-        }
-    });
+    {% for message in messages %}
+        Swal.fire({
+            icon: '{% if message.tags == "success" %}success{% elif message.tags == "error" %}error{% endif %}',
+            title: '{% if message.tags == "success" %}บันทึกสำเร็จ!{% else %}เกิดข้อผิดพลาด!{% endif %}',
+            text: '{{ message }}',
+            showConfirmButton: false,
+            timer: 2000,
+            background: 'rgba(255,255,255,0.9)',
+            backdrop: 'rgba(255,237,213,0.4)',
+            customClass: {
+                popup: 'rounded-3xl backdrop-blur-md border border-orange-200',
+                title: 'text-orange-600',
+                content: 'text-orange-700'
+            }
+        });
+    {% endfor %}
 </script>
 {% endif %}
 
