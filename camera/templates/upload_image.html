@@ -25,7 +25,7 @@
             </div>
 
             <!-- Enhanced Submit Button -->
-            <button onclick="uploadImage()" class="group px-10 py-4 bg-gradient-to-r from-orange-500/90 to-orange-400/90 hover:from-orange-600/90 hover:to-orange-500/90 text-white rounded-2xl shadow-lg backdrop-blur-sm transition-all hover:scale-105 font-light self-center">
+            <button id="analyzeBtn" onclick="uploadImage()" class="group px-10 py-4 bg-gradient-to-r from-orange-500/90 to-orange-400/90 hover:from-orange-600/90 hover:to-orange-500/90 text-white rounded-2xl shadow-lg backdrop-blur-sm transition-all hover:scale-105 font-light self-center">
                 <span class="flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="group-hover:transform group-hover:translate-x-1 transition-transform">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -67,9 +67,22 @@
             
                 <p id="result-message" class="text-center text-orange-700/80 text-lg font-light"></p>
                 <ul id="result-details" class="list-none mt-6 text-orange-600/80 space-y-3"></ul>
-                <div id="feedback-section" class="mt-8 p-6 bg-orange-50/70 border-l-4 border-orange-400 shadow-md rounded-2xl">
+                <div id="feedback-section" class="mt-8 p-6 bg-orange-50/70 border-l-4 border-orange-400 shadow-md rounded-2xl"></div>
+                
+                <!-- Detected Image Section -->
+                <div id="detected-image-section" class="mt-8 flex justify-center hidden transition-all duration-500">
+                    <img id="detectedImage" class="max-w-full rounded-2xl shadow-lg" src="" alt="Detected Image with Keypoints">
                 </div>
             </div>
+        </div>
+
+        <!-- Toggle Image Button -->
+        <div class="flex justify-center mt-6">
+            <button id="toggleImageBtn" onclick="toggleImageVisibility()" 
+                class="px-6 py-3 bg-gray-300 text-gray-600 rounded-xl shadow-md transition-all duration-300 opacity-50 cursor-not-allowed"
+                disabled>
+                🔍 แสดง/ซ่อน รูปภาพ
+            </button>
         </div>
     </div>
 </body>
@@ -119,7 +132,7 @@ function uploadImage() {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': csrfToken,
             },
-            body: JSON.stringify({ image: base64Image, detect_type: 'Side-part Detection' })
+            body: JSON.stringify({ image: base64Image, detect_type: 'Photo Detection' })
         })
         .then(response => response.json())
         .then(data => {
@@ -135,6 +148,18 @@ function uploadImage() {
                     <ul class="list-disc list-inside text-gray-700 mt-2">${feedbackList}</ul>
                 `;
                 updateScore(data.score || 0);
+
+                // แสดงภาพที่ตรวจจับได้
+                if (data.image) {
+                    document.getElementById('detectedImage').src = "data:image/jpeg;base64," + data.image;
+                    imageAvailable = true;
+
+                    // เปิดใช้งานปุ่มแสดง/ซ่อนรูปภาพ
+                    const toggleBtn = document.getElementById('toggleImageBtn');
+                    toggleBtn.classList.remove('bg-gray-300', 'text-gray-600', 'opacity-50', 'cursor-not-allowed');
+                    toggleBtn.classList.add('bg-orange-500', 'text-orange-600/80', 'hover:bg-orange-600');
+                    toggleBtn.disabled = false;
+                }
             }
             document.getElementById('result').classList.remove('hidden');
         })
@@ -157,6 +182,17 @@ function getCSRFToken() {
         }
     }
     return null;
+}
+
+// ฟังก์ชันเปิด-ปิดการแสดงภาพ
+function toggleImageVisibility() {
+    const imageSection = document.getElementById('detected-image-section');
+    
+    if (imageSection.classList.contains('hidden')) {
+        imageSection.classList.remove('hidden');
+    } else {
+        imageSection.classList.add('hidden');
+    }
 }
 </script>
 {% endblock %}

@@ -16,6 +16,7 @@
         <!-- Enhanced Video Container -->
         <div class="flex justify-center mb-10">
             <div class="relative backdrop-blur-md bg-white/40 p-4 rounded-3xl border border-white/50 shadow-2xl hover:shadow-orange-200/30 transition-all duration-300 group">
+                <canvas id="overlay" width="640" height="480" class="absolute top-0 left-0 rounded-2xl pointer-events-none"></canvas>
                 <video id="video" width="640" height="480" autoplay class="rounded-2xl group-hover:shadow-lg transition-all"></video>
                 <div class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 px-4 py-2 bg-orange-500/80 rounded-full text-white text-sm backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     กล้องกำลังใช้งาน

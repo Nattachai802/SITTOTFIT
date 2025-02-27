@@ -17,6 +17,7 @@
         <div class="flex justify-center mb-10">
             <div class="relative backdrop-blur-md bg-white/40 p-4 rounded-3xl border border-white/50 shadow-2xl hover:shadow-orange-200/30 transition-all duration-300 group">
                 <video id="video" width="640" height="480" autoplay class="rounded-2xl group-hover:shadow-lg transition-all"></video>
+                <canvas id="overlay" width="640" height="480" class="absolute top-0 left-0 rounded-2xl pointer-events-none"></canvas>
                 <div class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 px-4 py-2 bg-orange-500/80 rounded-full text-white text-sm backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     กำลังถ่ายทอดสด
                 </div>
@@ -98,6 +99,7 @@
         const cameraSelect = document.getElementById('cameraSelect');
         const nextPageButton = document.getElementById('next-page-button');
         const STORAGE_KEY = 'preferredCameraId';
+        
 
         function savePreferredCamera(deviceId) {
             localStorage.setItem(STORAGE_KEY, deviceId);
@@ -290,6 +292,103 @@
                 }, index * 1000); // หน่วงเวลา 1000ms (1 วินาที) สำหรับแต่ละขั้นตอน
             });
         }
+        const canvas = document.getElementById('overlay');
+        const ctx = canvas.getContext('2d');
+
+        function drawGuidelines(borderColor = 'orange') {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const rectWidth = canvas.width * 0.5;
+            const rectHeight = canvas.height - 35;
+            const rectX = (canvas.width - rectWidth) / 2;
+            const rectY = 20;
+
+            ctx.strokeStyle = borderColor;
+            ctx.lineWidth = 5;
+            ctx.strokeRect(rectX, rectY, rectWidth, rectHeight);
+
+            ctx.font = '20px Arial';
+            ctx.fillStyle = 'black';
+            ctx.textAlign = 'center';
+            ctx.fillText('กรุณาให้อยู่ภายในกรอบ', canvas.width / 2, canvas.height / 2);
+        }
+
+        function checkUserInGuidelines(bbox) {
+            const guidelineX = canvas.width * 0.25;
+            const guidelineY = 20;
+            const guidelineWidth = canvas.width * 0.5;
+            const guidelineHeight = canvas.height - 35;
+
+            // พิกัดของกรอบแนวทาง
+            const guidelineBox = {
+                x: guidelineX,
+                y: guidelineY,
+                width: guidelineWidth,
+                height: guidelineHeight
+            };
+
+            // คำนวณพื้นที่ Intersection
+            const intersectionX = Math.max(guidelineBox.x, bbox.x);
+            const intersectionY = Math.max(guidelineBox.y, bbox.y);
+            const intersectionWidth = Math.max(0, Math.min(guidelineBox.x + guidelineBox.width, bbox.x + bbox.width) - intersectionX);
+            const intersectionHeight = Math.max(0, Math.min(guidelineBox.y + guidelineBox.height, bbox.y + bbox.height) - intersectionY);
+            const intersectionArea = intersectionWidth * intersectionHeight;
+
+            // คำนวณพื้นที่ Union
+            const guidelineArea = guidelineBox.width * guidelineBox.height;
+            const bboxArea = bbox.width * bbox.height;
+            const unionArea = guidelineArea + bboxArea - intersectionArea;
+
+            // คำนวณค่า IoU
+            const iou = intersectionArea / unionArea;
+
+            // ถ้า IoU มากกว่า 0.5 ให้ถือว่าอยู่ในกรอบ
+            const isInside = iou > 0.5;
+
+            // วาดกรอบสีเขียวถ้าอยู่ในกรอบ หรือสีแดงถ้าอยู่นอกกรอบ
+            drawGuidelines(isInside ? 'green' : 'red');
+
+            if (isInside) {
+                console.log('ผู้ใช้อยู่ในกรอบ (IoU > 0.5)');
+            } else {
+                console.warn('ผู้ใช้อยู่นอกกรอบ (IoU <= 0.5)');
+            }
+        }
+
+        function fetchAndCheckBBox() {
+            fetch('/process_frame/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken(),
+                },
+                body: JSON.stringify({ image: captureCurrentFrame() })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.detections && data.detections.length > 0) {
+                    checkUserInGuidelines(data.detections[0]);
+                } else {
+                    console.warn('ไม่พบผู้ใช้งานในภาพ');
+                    drawGuidelines('red');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        setInterval(fetchAndCheckBBox, 1000);
+
+        function captureCurrentFrame() {
+            const canvas = document.createElement('canvas');
+            canvas.width = videoElement.videoWidth;
+            canvas.height = videoElement.videoHeight;
+            const context = canvas.getContext('2d');
+            context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+            return canvas.toDataURL('image/png');
+        }
+
+        document.addEventListener('DOMContentLoaded', drawGuidelines);
+
     </script>
 </body>
 {% endblock %}

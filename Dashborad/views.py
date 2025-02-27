@@ -51,21 +51,6 @@ class DashboardHomeView(TemplateView):
         scores_today = PostureDetection.objects.filter(timestamp__range=(start_of_day, end_of_day))
 
 
-        # คำนวณช่วงเวลาที่ใช้งานบ่อยที่สุดสำหรับวันนี้
-        peak_time = (
-            scores_today.annotate(hour=TruncHour('timestamp'))  # ตัดช่วงเวลาเป็นรายชั่วโมง
-            .values('hour')  # รวมกลุ่มตามชั่วโมง
-            .annotate(count=Count('id'))  # นับจำนวน
-            .order_by('-count')  # เรียงลำดับจากมากไปน้อย
-        )
-
-        if peak_time.exists():
-            peak_hour = peak_time[0]['hour']
-            peak_hour_count = peak_time[0]['count']
-        else:
-            peak_hour = None
-            peak_hour_count = 0
-
         # Calculate today's weighted average score
         total_score = 0
         total_duration = 0
@@ -79,7 +64,6 @@ class DashboardHomeView(TemplateView):
             total_score += entry.score * duration
             total_duration += duration
 
-        avg_score_today = total_score / total_duration if total_duration > 0 else 0
 
         goal = personal_info.goal if personal_info else "ผู้ใช้งานยังไม่ได้เลือกเป้าหมาย"
         
@@ -97,7 +81,6 @@ class DashboardHomeView(TemplateView):
         )
 
         # Group scores by day
-        daily_scores = defaultdict(list)
         for entry in yesterday_usage:
             day = entry.timestamp.date()
             daily_scores[day].append(entry.score)
@@ -116,7 +99,6 @@ class DashboardHomeView(TemplateView):
             total_score_yesterday += entry.score * duration
             total_duration_yesterday += duration
 
-        avg_score_yesterday = total_score_yesterday / total_duration_yesterday if total_duration_yesterday > 0 else 0
 
         if total_duration_yesterday > 0:
             max_yesterday = max([entry.score for entry in yesterday_usage])
@@ -133,14 +115,10 @@ class DashboardHomeView(TemplateView):
             min_today = 0 
 
         context['usage_count'] = usage_count
-        context['yesterday_score'] = avg_score_yesterday
         context['max_yesterday'] = max_yesterday
         context['min_yesterday'] = min_yesterday
         context['Rank'] = Rank
-        context['avg_score'] = avg_score_today
         context['today_count'] = len(scores_today)
-        context['peak_hour'] = peak_hour
-        context['peak_count'] = peak_hour_count
         context['max_score'] = max_today
         context['min_score'] = min_today
 

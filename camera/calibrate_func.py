@@ -34,9 +34,9 @@ def calculate_iou(bbox1, bbox2):
 def check_brightness(frame, threshold=50):
     gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     avg_brightness = np.mean(gray_frame)
-    return avg_brightness, int(avg_brightness < threshold)  # แปลงเป็น Integer
+    return avg_brightness, int(avg_brightness < threshold)  
 
 def is_sit_chair(user_bbox, chair_bbox, threshold=0.3):
-    iou = calculate_iou(user_bbox, chair_bbox) #คำนวณหาค่าIoUของ bbox_user และ bbox_chair
+    iou = calculate_iou(user_bbox, chair_bbox) 
     return iou >= threshold
 

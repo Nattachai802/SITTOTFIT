@@ -143,8 +143,8 @@ def contact_view(request):
             send_mail(
                 'Contact from User',
                 full_message,
-                email,  # Email ผู้ส่ง
-                ['sittofit.noreply@gmail.com'],  # Email ทีมพัฒนา
+                email,
+                ['sittofit.noreply@gmail.com'],
             )
             return render(request, 'contact.html', {'form': form, 'success': True})
     else:
