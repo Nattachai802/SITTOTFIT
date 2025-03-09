@@ -9,6 +9,19 @@ class UserInfomation(AbstractUser):
     role = models.CharField(max_length= 50 )
     created_at = models.DateTimeField(auto_now_add= True)
 
+    # สร้างฟังก์ชั่นสำหรับอัปเดต role ของ user
+    def update_role(self):
+        usage_count = UserUsageHistory.objects.filter(posture_detection__user=self).count()
+
+        if usage_count >= 100:
+            self.role = 'Advanced Sitter'
+        elif usage_count >= 50:
+            self.role = 'Intermediate Sitter'
+        else:
+            self.role = 'Beginner Sitter'
+
+        self.save(update_fields=['role'])
+
     def __str__(self):
         return self.username
 
@@ -62,6 +75,11 @@ class UserUsageHistory(models.Model):
         # ถ้า detect_type เป็น 'Photo Detection' ต้องไม่ให้กรอกค่า detection_time
         if self.detect_type == 'Photo Detection' and self.detection_time is not None:
             raise ValidationError({'detection_time': 'Detection time must be empty for Photo Detection.'})
+    
+    # สร้างฟังก์ชั่นสำหรับอัปเดต role ของ user
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self.posture_detection.user.update_role()  # อัปเดต role ของ user
 
     def __str__(self):
         return f'{self.posture_detection.user.username} - {self.detect_type} - Detection Time: {self.detection_time}'

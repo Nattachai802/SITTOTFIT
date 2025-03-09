@@ -17,12 +17,12 @@ urlpatterns = [
     path('password-reset/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
     
     path('password-reset-confirm/<uidb64>/<token>/',
-         auth_views.PasswordResetConfirmView.as_view(template_name='password_reset_confirm.html',
+         auth_views.PasswordResetConfirmView.as_view(template_name='Authen/password_reset_confirm.html',
                                                      success_url=reverse_lazy('base:password_reset_complete')),
          name='password_reset_confirm'),
     
     path('password-reset-complete/',
-         auth_views.PasswordResetCompleteView.as_view(template_name='password_reset_complete.html'),
+         auth_views.PasswordResetCompleteView.as_view(template_name='Authen/password_reset_complete.html'),
          name='password_reset_complete'),
      
     path('update-personal-information/', PersonalInformationUpdateView.as_view(), name='update_personal_information'),

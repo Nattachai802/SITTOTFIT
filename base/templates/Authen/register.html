@@ -14,73 +14,106 @@
     <div class="w-1/2 p-8">
         <h1 class="font-semibold">Welcome to <span class="text-blue-500 font-extrabold">SIT TO FIT</span></h1>
         <h2 class="text-3xl font-bold text-gray-800 text-center mb-6">Sign in</h2>
-        <form method="POST" class="space-y-4" id='registerForm'>
+        <form method="POST" class="space-y-4" id="registerForm">
             {% csrf_token %}
             <div class="form-group">
-                <label for="email" class="block text-gray-700 font-semibold ">Email:</label>
-                <input type="email" id="email" name="email" class="shadow appearance-none border  w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline rounded-lg" placeholder='Enter Email'>
+                <label for="email" class="block text-gray-700 font-semibold">Email:</label>
+                <input type="email" id="email" name="email" class="shadow appearance-none border w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline rounded-lg" placeholder="Enter Email">
                 {% if form.email.errors %}
-                    <p class="text-red-500 text-xs font-light">{{ form.email.errors.as_text }}</p>
+                    <div class="text-red-500 text-xs font-light mt-2">
+                        {% for error in form.email.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
                 {% endif %}
             </div>
+
             <div class="flex space-x-4">
                 <div class="form-group w-1/2">
                     <label for="username" class="block text-gray-700 font-semibold">Username:</label>
-                    <input type="text" id="username" name="username" class="shadow appearance-none border  w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline rounded-lg" placeholder='Enter Username'>
+                    <input type="text" id="username" name="username" class="shadow appearance-none border w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline rounded-lg" placeholder="Enter Username">
                     {% if form.username.errors %}
-                        <p class="text-red-500 text-xs font-light">{{ form.username.errors.as_text }}</p>
+                        <div class="text-red-500 text-xs font-light mt-2">
+                            {% for error in form.username.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
                     {% endif %}
                 </div>
+
                 <div class="form-group w-1/2">
                     <label for="contact_number" class="block text-gray-700 font-semibold">Contact number:</label>
-                    <input type="text" id="contact_number" name="contact_number" class="shadow appearance-none border  w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline rounded-lg" placeholder='Enter number'>
+                    <input type="text" id="contact_number" name="contact_number" class="shadow appearance-none border w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline rounded-lg" placeholder="Enter number">
                     {% if form.contact_number.errors %}
-                        <p class="text-red-500 text-xs font-light">{{ form.contact_number.errors.as_text }}</p>
+                        <div class="text-red-500 text-xs font-light mt-2">
+                            {% for error in form.contact_number.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
                     {% endif %}
-
                 </div>
             </div>
+
             <div class="form-group">
                 <label for="password1" class="block text-gray-700 font-semibold">Password:</label>
-                <input type="password" id="password1" name="password1" class="shadow appearance-none border  w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline rounded-lg" placeholder='Enter password'>
+                <input type="password" id="password1" name="password1" class="shadow appearance-none border w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline rounded-lg" placeholder="Enter password">
                 {% if form.password1.errors %}
-                    <p class="text-red-500 text-xs font-light">{{ form.password1.errors.as_text }}</p>
+                    <div class="text-red-500 text-xs font-light mt-2">
+                        {% for error in form.password1.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
                 {% endif %}
-
-
             </div>
+
             <div class="form-group">
                 <label for="password2" class="block text-gray-700 font-semibold">Password confirmation:</label>
-                <input type="password" id="password2" name="password2" class="shadow appearance-none border  w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline rounded-lg" placeholder='Enter password again'>
+                <input type="password" id="password2" name="password2" class="shadow appearance-none border w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline rounded-lg" placeholder="Enter password again">
                 {% if form.password2.errors %}
-                    <p class="text-red-500 text-xs font-light">{{ form.password2.errors.as_text }}</p>
+                    <div class="text-red-500 text-xs font-light mt-2">
+                        {% for error in form.password2.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
                 {% endif %}
-
             </div>
-            <button class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg" type='submit'>Sign up</button>
+
+            <button class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg" type="submit">Sign up</button>
         </form>
         <div class="text-center mt-4">
             <p>Already have Account? | <a href="{% url 'base:Login' %}" class="text-blue-500">Sign in</a></p>
         </div>
     </div>
 </div>
-</body>
-{% if messages %}
-<div id="messageModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-    <div class="bg-white rounded-lg p-6 shadow-lg">
-        <h2 class="text-2xl font-bold mb-4">Notification</h2>
-        <p class="mb-4 text-gray-700 font-extrabold">
-            {% for message in messages %}
-                {{ message }}
-            {% endfor %}
-        </p>
-    </div>
-</div>
-<script>
-    setTimeout(function() {
-        window.location.href = "{% url 'base:Login' %}";
-    }, 3000);
-</script>
-{% endif %}
 
+<script>
+    {% if messages %}
+        {% for message in messages %}
+            {% if message.tags == 'success' %}
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: '{{ message }}',
+                    showCancelButton: false,
+                    confirmButtonText: 'Go to Login',
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonText: 'Cancel',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = "{% url 'base:Login' %}";  // ไปหน้า Login เมื่อคลิกปุ่ม
+                    }
+                });
+            {% elif message.tags == 'error' %}
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: '{{ message }}',
+                });
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+</script>
+
+</body>
 {% endblock %}

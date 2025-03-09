@@ -34,4 +34,27 @@
     </form>
   </div>
 </div>
+
+<script>
+  {% if messages %}
+    {% for message in messages %}
+      {% if message.tags == 'success' %}
+        Swal.fire({
+          icon: 'success',
+          title: 'Success!',
+          text: '{{ message }}',
+          showCancelButton: false,
+          confirmButtonText: 'Go to Account',
+          confirmButtonColor: '#3085d6',
+          cancelButtonText: 'Cancel',
+          reverseButtons: true
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.href = "{% url 'base:home' %}";  
+          }
+        });
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+</script>
 {% endblock %}

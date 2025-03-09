@@ -36,7 +36,7 @@
             Notification.requestPermission().then(permission => {
               if (permission === 'granted') {
                 // ดึง Token
-                // หมายเหตุ: ในเวอร์ชั่นใหม่ คุณจำเป็นต้องกำหนด VAPID KEY (web push certificate key pair)
+                // หมายเหตุ: ในเวอร์ชั่นใหม่ จำเป็นต้องกำหนด VAPID KEY (web push certificate key pair)
                 getToken(messaging, { vapidKey: 'BI9plwhZBp338eYi4gCsMUmh4YbpRh1xrFWCelnU7C0bEx5a4cw4x7jdKrxmqRZbNDTL_42md5mlrGBzBqX5z0k' }).then((currentToken) => {
                   if (currentToken) {
                     console.log("FCM Token:", currentToken);

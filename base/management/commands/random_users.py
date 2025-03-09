@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from base.models import (
-    UserInfomation, PersonalInformation, PersonalHealthInformation,
-    UserUsageHistory, PostureDetection, NotificationLog
+    UserInfomation, PersonalInformation,
+    UserUsageHistory, PostureDetection
 )
 from faker import Faker
 import random
@@ -38,40 +38,27 @@ class Command(BaseCommand):
                 job_type=fake.job(),
                 job_hours=random.uniform(4, 10),
                 break_hours=random.uniform(0.5, 2),
-            )
-            self.stdout.write(f'PersonalInformation for {user.username} created')
-
-            # สร้าง PersonalHealthInformation
-            PersonalHealthInformation.objects.create(
-                user=user,
                 age=random.randint(18, 65),
                 height=random.uniform(150, 200),
                 weight=random.uniform(50, 100),
                 has_pain=random.choice([True, False]),
             )
-            self.stdout.write(f'PersonalHealthInformation for {user.username} created')
+            self.stdout.write(f'PersonalInformation for {user.username} created')
 
             # สร้าง UserUsageHistory
             UserUsageHistory.objects.create(
                 user=user,
-                detect_type=random.choice(['Simple Detection', 'Advanced Detection']),
+                detect_type=random.choice(['Photo Detection', 'Advanced Detection']),
+                detection_time = fake.time_delta(),
             )
 
             # สร้าง PostureDetection หลายรายการ
             for _ in range(posture_count):
                 PostureDetection.objects.create(
                     user=user,
-                    detection_time=fake.time_delta(),
                     score=random.randint(50, 100),
                 )
             self.stdout.write(f'{posture_count} PostureDetection records for {user.username} created')
 
-            # สร้าง NotificationLog
-            NotificationLog.objects.create(
-                user=user,
-                message=fake.sentence(),
-                admin_message=fake.sentence(),
-            )
-            self.stdout.write(f'NotificationLog for {user.username} created')
 
         self.stdout.write('Sample data generated successfully.')

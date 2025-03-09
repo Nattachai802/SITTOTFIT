@@ -273,18 +273,44 @@ function updateResults(data) {
     
     const scoreText = document.getElementById('score-text');
     const scoreCircle = document.getElementById('score-circle');
+    const resultDetails = document.getElementById('result-details');
 
     // อัปเดตค่าให้คะแนนใน UI
     let score = data.score || 0;
-    let roundedScore = score.toFixed(1); // ปัดเป็นทศนิยมหนึ่งตำแหน่ง
+    let roundedScore = score.toFixed(1);
     scoreText.textContent = `${roundedScore}%`;
 
     // อัปเดต progress ของวงกลม
     if (scoreCircle) {  
-        let maxStroke = 251.2; // ค่า stroke-dasharray ของ SVG (เต็ม 100%)
+        let maxStroke = 251.2;
         let newOffset = maxStroke - (score / 100) * maxStroke;
         scoreCircle.style.strokeDashoffset = newOffset;
     }
+
+    // เพิ่มการแสดงผลข้อมูลการจัดตำแหน่งกล้องและความสมมาตร
+    const alignmentInfo = `
+        <div class="mt-4 space-y-2">
+            <h3 class="text-lg font-semibold text-orange-600">ข้อมูลการจัดตำแหน่ง:</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="flex items-center gap-2">
+                    <span class="w-3 h-3 rounded-full ${data.angles.camera_aligned ? 'bg-green-500' : 'bg-red-500'}"></span>
+                    <span>การจัดตำแหน่งกล้อง: ${data.angles.camera_aligned ? 'ถูกต้อง' : 'ไม่ถูกต้อง'}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="w-3 h-3 rounded-full ${data.angles.shoulder_symmetry ? 'bg-green-500' : 'bg-red-500'}"></span>
+                    <span>ความสมมาตรของไหล่: ${data.angles.shoulder_symmetry ? 'สมมาตร' : 'ไม่สมมาตร'}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="w-3 h-3 rounded-full ${data.angles.hip_symmetry ? 'bg-green-500' : 'bg-red-500'}"></span>
+                    <span>ความสมมาตรของสะโพก: ${data.angles.hip_symmetry ? 'สมมาตร' : 'ไม่สมมาตร'}</span>
+                </div>
+            </div>
+            <p class="text-sm text-gray-600">${data.angles.camera_alignment_message}</p>
+        </div>
+    `;
+
+    // แทรกข้อมูลการจัดตำแหน่งลงใน result-details
+    resultDetails.innerHTML = alignmentInfo;
 
     // อัปเดต feedback
     const feedbackList = document.getElementById('feedback-list');
@@ -307,7 +333,6 @@ function updateResults(data) {
             feedbackList.classList.add("opacity-100", "translate-y-0");
         }, 300);
 
-        // แสดง feedback ล่าสุด
         document.getElementById('last-feedback-text').textContent = data.feedback[data.feedback.length - 1];
     }
 }

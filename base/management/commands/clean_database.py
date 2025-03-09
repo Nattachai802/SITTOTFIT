@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from base.models import PostureDetection, UserUsageHistory , UserInfomation
+from base.models import PostureDetection, UserUsageHistory , UserInfomation , PersonalInformation
 
 class Command(BaseCommand):
     help = 'Clear data from specific tables'
@@ -20,6 +20,10 @@ class Command(BaseCommand):
         if 'UserInfomation' in tables:
             UserInfomation.objects.all().delete()
             self.stdout.write('UserInfomation cleared.')
+        
+        if 'PersonalInformation' in tables:
+            PersonalInformation.objects.all().delete()
+            self.stdout.write('PersonalInformation cleared.')
 
         if not tables:
             self.stdout.write('No tables specified.')

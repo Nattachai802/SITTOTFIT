@@ -105,6 +105,7 @@ def calculate_angles(pose_landmarks):
         "shoulder_angle": float(shoulder_angle),
         "head_tilt_angle": float(head_tilt_angle),
         "knee_angle": float(knee_angle),
+        
         "camera_aligned": bool(aligned),
         "shoulder_symmetry": bool(shoulder_symmetry),
         "hip_symmetry": bool(hip_symmetry),
