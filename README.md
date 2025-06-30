@@ -1,26 +1,33 @@
 # SIT TO FIT
 
-รายละเอียดโครงการ
+## Project Overview
+SIT TO FIT is a project designed to analyze and improve ergonomic sitting postures. It helps individuals identify poor sitting habits and offers recommendations to improve posture for better comfort and health. The system leverages advanced technologies such as computer vision, machine learning, and ergonomic analysis to provide users with valuable insights.
 
-SIT TO FIT เป็นระบบที่ช่วยติดตามและประเมินพฤติกรรมการนั่งทำงานหรือเรียนรู้ของผู้ใช้งาน โดยมุ่งเน้นการพัฒนาให้ผู้ใช้งานสามารถปรับปรุงสุขภาพและการนั่งทำงานได้อย่างมีประสิทธิภาพ ผ่านการตรวจจับข้อมูลและการแสดงผลที่เข้าใจง่าย
+## Features
+- **Sitting Posture Detection**: Analyzes the sitting posture using real-time video and provides feedback.
+- **Posture Recommendations**: Provides advice to improve sitting habits based on detected posture.
+- **User Dashboard**: Displays posture analysis results and track improvements over time.
+- **Camera Integration**: Utilizes YOLOv8 and MediaPipe for detecting and analyzing sitting postures.
+  
+## Technologies Used
+- **Python**: The primary programming language for backend development.
+- **Django**: Web framework used for building the backend of the application.
+- **OpenCV**: Computer vision library used for video processing and image analysis.
+- **YOLOv8**: Used for object detection to identify persons and chairs in real-time.
+- **MediaPipe**: Used for pose landmarks to detect body position and posture.
+- **SQLite**: Database used to store user data and posture analysis results.
+  
+## Setup and Installation
 
-# ความคืบหน้าในปัจจุบัน
+### Prerequisites
+- Python 3.x
+- Django 3.x or higher
+- OpenCV
+- YOLOv8 (for posture detection)
+- MediaPipe
 
-1. ระบบAutentification
-![หน้าlogin](login.png)
-2. ระบบแสดงหน้าต่างผู้ใช้งาน(AccountView)
-![หน้าlogin](Account.png)
-3. ระบบแสดงแผนภาพแสดงความคืบหน้า(Dashborad)
-![หน้าlogin](Dashborad.png)
-4. ระบบแจ้งเตือน ด้วยการใช้ FCM
-5. ระบบติดต่อผู้พัฒนาระบบ
-6. ระบบเตรวจจับท่านั่ง ผ่านรูปภาพ และ Realtime
-7. ระบบเลือกกล้องสำหรับตรวจจับท่านั่งแบบ Realtime
-
-# Installazion
-1. npm install tailwindcss postcss autoprefixer 
-2. npm install postcss-simple-vars --save-dev
-3. npm install @tailwindcss/forms --save-dev
-4. npm install @tailwindcss/typography --save-dev
-5. npm install @tailwindcss/aspect-ratio --save-dev
-6. npm install daisyui --save-dev
+### Installation Steps
+1. Clone this repository:
+   ```bash
+   git clone https://github.com/yourusername/SITTOFIT.git
+   cd SITTOFIT
