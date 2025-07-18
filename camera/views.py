@@ -165,6 +165,8 @@ def posture_detection(request):
         img = Image.open(BytesIO(img_data))
         img = np.array(img)
 
+        height, width, _ = img.shape 
+
         # ใช้ MediaPipe Pose
         mp_pose = mp.solutions.pose
         with mp_pose.Pose(static_image_mode=True) as pose:
@@ -176,8 +178,7 @@ def posture_detection(request):
 
             # คำนวณมุม
             angles = calculate_angles(results_pose.pose_landmarks)
-            score, feedback = calculate_score(angles)
-
+            score, feedback = calculate_score(angles ,width, results_pose.pose_landmarks)
             # สร้าง response_data พื้นฐาน
             response_data = {
                 "message": "ตรวจจับท่าทางสำเร็จ",
@@ -196,7 +197,9 @@ def posture_detection(request):
                 )
                 UserUsageHistory.objects.create(
                     posture_detection=posture_detection_instance,
-                    detect_type='Photo Detection'
+                    detect_type='Photo Detection',
+                    detection_time = 1
+                    
                 )
 
                 # เพิ่มเงื่อนไขให้ส่งภาพกลับเฉพาะ Photo Detection

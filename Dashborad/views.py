@@ -51,16 +51,19 @@ class DashboardHomeView(TemplateView):
         scores_today = PostureDetection.objects.filter(timestamp__range=(start_of_day, end_of_day))
 
 
+
         # Calculate today's weighted average score
         total_score = 0
         total_duration = 0
         for entry in scores_today:
             if entry.userusagehistory_set.exists():
                 duration = entry.userusagehistory_set.first().detection_time
+                print("Duration:", duration)
                 if duration is None:
                     duration = 0
             else:
                 duration = 0
+
             total_score += entry.score * duration
             total_duration += duration
 
@@ -113,6 +116,9 @@ class DashboardHomeView(TemplateView):
         else:
             max_today = 0 
             min_today = 0 
+        
+        print("Max Today:", max_today, "Min Today:", min_today)
+        print("Max Yesterday:", max_yesterday, "Min Yesterday:", min_yesterday)
 
         context['usage_count'] = usage_count
         context['max_yesterday'] = max_yesterday

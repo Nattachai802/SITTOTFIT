@@ -1,474 +1,661 @@
 {% extends "base.html" %}
 {% block main %}
-<body class="bg-gradient-to-br from-orange-200 via-orange-100 to-orange-50 font-sans min-h-screen py-12 animate-gradient-x">
-    <!-- Enhanced Glass Container -->
-    <div class="max-w-4xl mx-auto backdrop-blur-lg bg-white/20 p-8 rounded-3xl shadow-2xl border border-white/30 hover:shadow-orange-200/20 transition-all duration-300">
-        <h1 class="text-4xl font-light text-center text-orange-600 mb-8 hover:text-orange-500 transition-colors">การตรวจจับท่าทาง</h1>
 
-        <!-- Modernized Camera Selection -->
-        <div class="mb-8 flex flex-row items-center gap-4 group">
-            <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="rgba(234,88,12,0.8)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="group-hover:scale-110 transition-transform"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
-            <select id="cameraSelect" class="w-full p-4 bg-white/40 border border-orange-200/50 rounded-2xl focus:ring-4 focus:ring-orange-300/40 focus:border-transparent hover:shadow-lg transition-all backdrop-blur-sm text-orange-700 outline-none">
-                <option value="">เลือกกล้อง</option>
-            </select>
+<!DOCTYPE html>
+<html lang="th" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>การตรวจจับท่าทาง - Posture Detection</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans Thai', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #fed7aa 0%, #fef3c7 50%, #fef7cd 100%);
+            background-size: 400% 400%;
+            animation: gradient-shift 15s ease infinite;
+        }
+        
+        @keyframes gradient-shift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        .glass-card {
+            backdrop-filter: blur(16px);
+            background: rgba(255, 255, 255, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .video-container {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .video-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, rgba(251, 146, 60, 0.3), transparent);
+            animation: rotate 4s linear infinite;
+            z-index: -1;
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .floating-animation {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <!-- Main Container -->
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-5xl font-bold text-orange-600 mb-4 drop-shadow-lg">
+                🎯 การตรวจจับท่าทาง
+            </h1>
+            <p class="text-orange-500 text-lg font-medium">
+                ระบบตรวจจับท่าทางอัจฉริยะ เพื่อสุขภาพที่ดี
+            </p>
         </div>
 
-        <!-- Enhanced Video Container -->
-        <div class="flex justify-center mb-10">
-            <div class="relative backdrop-blur-md bg-white/40 p-4 rounded-3xl border border-white/50 shadow-2xl hover:shadow-orange-200/30 transition-all duration-300 group">
-                <canvas id="overlay" width="640" height="480" class="absolute top-0 left-0 rounded-2xl pointer-events-none"></canvas>
-                <video id="video" width="640" height="480" autoplay class="rounded-2xl group-hover:shadow-lg transition-all"></video>
-                <div class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 px-4 py-2 bg-orange-500/80 rounded-full text-white text-sm backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    กล้องกำลังใช้งาน
-                </div>
-            </div>
-        </div>
-
-        <!-- Enhanced Buttons -->
-        <div class="flex flex-col items-center gap-10">
-            <div class="flex gap-8">
-                <button id="start-button" onclick="startDetection()" class="group px-10 py-4 bg-gradient-to-r from-orange-500/90 to-orange-400/90 hover:from-orange-600/90 hover:to-orange-500/90 text-white rounded-2xl shadow-lg backdrop-blur-sm transition-all hover:scale-105 font-light">
-                    <span class="flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="group-hover:transform group-hover:translate-x-1 transition-transform"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                        เริ่มตรวจจับ
-                    </span>
-                </button>
-                <button id="stop-button" onclick="stopDetection()" class="group px-10 py-4 bg-gradient-to-r from-red-500/90 to-red-400/90 hover:from-red-600/90 hover:to-red-500/90 text-white rounded-2xl shadow-lg backdrop-blur-sm transition-all hover:scale-105 font-light disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                    <span class="flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="group-hover:scale-110 transition-transform"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
-                        หยุดตรวจจับ
-                    </span>
-                </button>
+        <!-- Main Content Card -->
+        <div class="glass-card rounded-3xl p-8 max-w-7xl mx-auto">
+            <!-- Camera Selection -->
+            <div class="mb-8">
+                <label class="form-control w-full">
+                    <div class="label">
+                        <span class="label-text text-orange-600 font-semibold flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/>
+                                <circle cx="12" cy="13" r="3"/>
+                            </svg>
+                            เลือกกล้อง
+                        </span>
+                    </div>
+                    <select id="cameraSelect" class="select select-bordered select-primary w-full text-orange-700 bg-white/70 backdrop-blur-sm">
+                        <option value="" disabled selected>เลือกกล้องที่ต้องการใช้งาน</option>
+                    </select>
+                </label>
             </div>
 
-            <!-- Enhanced Timer -->
-            <div class="flex gap-10 p-8 backdrop-blur-md bg-white/40 rounded-3xl border border-white/50 shadow-xl hover:shadow-orange-200/30 transition-all duration-300">
-                <div class="clock-col flex flex-col items-center gap-3">
-                    <p id="real-time-hours" class="text-6xl text-orange-600/90 font-light tracking-tight">00</p>
-                    <p class="text-orange-600/70 text-sm uppercase tracking-wider">ชั่วโมง</p>
-                </div>
-                <div class="self-center text-4xl text-orange-400/60 font-light">:</div>
-                <div class="clock-col flex flex-col items-center gap-3">
-                    <p id="real-time-minutes" class="text-6xl text-orange-600/90 font-light tracking-tight">00</p>
-                    <p class="text-orange-600/70 text-sm uppercase tracking-wider">นาที</p>
-                </div>
-                <div class="self-center text-4xl text-orange-400/60 font-light">:</div>
-                <div class="clock-col flex flex-col items-center gap-3">
-                    <p id="real-time-seconds" class="text-6xl text-orange-600/90 font-light tracking-tight">00</p>
-                    <p class="text-orange-600/70 text-sm uppercase tracking-wider">วินาที</p>
-                </div>
-
-                <!-- Enhanced Progress Circle -->
-                <div class="relative w-36 h-36 ml-6">
-                    <svg class="w-full h-full -rotate-90 transform" viewBox="0 0 100 100">
-                        <circle class="text-orange-200/40" stroke-width="8" stroke="currentColor" fill="transparent" r="40" cx="50" cy="50"/>
-                        <circle id="score-circle" 
-                        class="text-orange-500/80 transition-all duration-700" 
-                        stroke-width="8" 
-                        stroke="currentColor" 
-                        fill="transparent" 
-                        r="40" 
-                        cx="50" 
-                        cy="50"
-                        stroke-dasharray="251.2" 
-                        stroke-dashoffset="251.2"
-                        style="stroke-linecap: round;"
-                        />
-                    </svg>
-                    <div class="absolute inset-0 flex items-center justify-center flex-col p-4 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-                        <p id="score-text" class="text-4xl font-bold text-orange-700">0%</p>
-                        <p class="text-lg text-orange-600">คะแนน</p>
+            <!-- Video and Example Section -->
+            <div class="grid lg:grid-cols-3 gap-8 mb-8">
+                <!-- Video Container -->
+                <div class="lg:col-span-2">
+                    <div class="video-container glass-card rounded-2xl p-4 relative">
+                        <canvas id="overlay" width="640" height="480" class="absolute top-4 left-4 rounded-xl pointer-events-none z-10"></canvas>
+                        <video id="video" width="640" height="480" autoplay class="rounded-xl w-full h-auto shadow-lg"></video>
+                        
+                        <!-- Live Status Badge -->
+                        <div class="absolute top-6 right-6 z-20">
+                            <div class="badge badge-error gap-2 p-3 shadow-lg">
+                                <div class="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                                <span class="text-white font-medium">LIVE</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                
-            </div>
-            <div id="last-feedback" class="flex flex-col items-center gap-3 ml-6">
-                <p class="text-lg font-semibold text-orange-600">คำแนะนำล่าสุด</p>
-                <p id="last-feedback-text" class="text-xl text-orange-700"></p>
-            </div>
-        </div>
 
-        <!-- Enhanced Results Section -->
-        <div id="result" class="mt-10 backdrop-blur-md bg-white/40 p-8 rounded-3xl shadow-xl border border-white/30 hover:shadow-orange-200/30 transition-all duration-300">
-            <h2 class="text-2xl font-light text-center text-orange-600 mb-6">ผลการตรวจจับท่าทาง</h2>
-            <p id="result-message" class="text-center text-orange-700/80 text-lg font-light"></p>
-            <ul id="result-details" class="list-none mt-6 text-orange-600/80 space-y-3"></ul>
-            <div id="feedback-section" class="mt-8 p-6 bg-orange-50/70 border-l-4 border-orange-400 shadow-md rounded-2xl transition-all duration-500 ease-in-out">
-                <h3 class="text-lg font-semibold text-orange-600 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-orange-500 animate-bounce" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77 5.82 21 7 14.12 2 9.27l6.91-1L12 2z"/>
+                <!-- Example and Controls -->
+                <div class="space-y-6">
+                    <!-- Example Toggle Card -->
+                    <div class="card bg-white/60 backdrop-blur-sm shadow-xl border border-white/50">
+                        <div class="card-body p-6">
+                            <h3 class="card-title text-orange-600 justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                    <circle cx="9" cy="9" r="2"/>
+                                    <path d="M21 15l-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+                                </svg>
+                                ตัวอย่างท่าทาง
+                            </h3>
+                            
+                            <div class="form-control">
+                                <label class="label cursor-pointer justify-center">
+                                    <input id="toggle-example" type="checkbox" class="toggle toggle-primary" />
+                                    <span class="label-text ml-3 text-orange-600">แสดงภาพตัวอย่าง</span>
+                                </label>
+                            </div>
+                            
+                            <div id="example-posture" class="mt-4 hidden">
+                                <div class="floating-animation">
+                                    <figure class="text-center">
+                                        <img src="http://127.0.0.1:8000/static/images/EWI_Desk.png"
+                                             alt="ตัวอย่างท่านั่งถูกต้อง"
+                                             class="rounded-xl shadow-xl w-full max-w-xs mx-auto hover:scale-105 transition-transform duration-300">
+                                        <figcaption class="text-orange-600 text-sm mt-2 font-medium">
+                                            ท่านั่งที่ถูกต้อง
+                                        </figcaption>
+                                    </figure>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Control Buttons -->
+                    <div class="card bg-white/60 backdrop-blur-sm shadow-xl border border-white/50">
+                        <div class="card-body p-6">
+                            <h3 class="card-title text-orange-600 justify-center mb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <path d="M8 12l2 2 4-4"/>
+                                </svg>
+                                ควบคุมการตรวจจับ
+                            </h3>
+                            
+                            <div class="flex flex-col gap-3">
+                                <button id="start-button" onclick="startDetection()" class="btn btn-primary btn-lg glass-card border-none text-white shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polygon points="5 3 19 12 5 21 5 3"/>
+                                    </svg>
+                                    เริ่มตรวจจับ
+                                </button>
+                                
+                                <button id="stop-button" onclick="stopDetection()" class="btn btn-error btn-lg glass-card border-none text-white shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300" disabled>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="6" y="6" width="12" height="12" rx="2"/>
+                                    </svg>
+                                    หยุดตรวจจับ
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timer and Score Dashboard -->
+            <div class="mb-8">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <!-- Timer Card -->
+                    <div class="card bg-gradient-to-br from-orange-100 to-orange-50 shadow-xl border border-orange-200/50">
+                        <div class="card-body p-8">
+                            <h3 class="card-title text-orange-600 justify-center mb-6">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <polyline points="12,6 12,12 16,14"/>
+                                </svg>
+                                เวลาที่ใช้งาน
+                            </h3>
+                            
+                            <div class="flex justify-center items-center gap-4 text-center">
+                                <div class="stat">
+                                    <div class="stat-figure text-orange-400">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="12" cy="12" r="10"/>
+                                            <polyline points="12,6 12,12 16,14"/>
+                                        </svg>
+                                    </div>
+                                    <div class="stat-title text-orange-600">ชั่วโมง</div>
+                                    <div id="real-time-hours" class="stat-value text-5xl text-orange-600">00</div>
+                                </div>
+                                
+                                <div class="text-4xl text-orange-400 font-bold">:</div>
+                                
+                                <div class="stat">
+                                    <div class="stat-title text-orange-600">นาที</div>
+                                    <div id="real-time-minutes" class="stat-value text-5xl text-orange-600">00</div>
+                                </div>
+                                
+                                <div class="text-4xl text-orange-400 font-bold">:</div>
+                                
+                                <div class="stat">
+                                    <div class="stat-title text-orange-600">วินาที</div>
+                                    <div id="real-time-seconds" class="stat-value text-5xl text-orange-600">00</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Score Card -->
+                    <div class="card bg-gradient-to-br from-green-100 to-green-50 shadow-xl border border-green-200/50">
+                        <div class="card-body p-8 flex flex-col items-center">
+                            <h3 class="card-title text-green-600 justify-center mb-6">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77 5.82 21 7 14.12 2 9.27l6.91-1L12 2z"/>
+                                </svg>
+                                คะแนนท่าทาง
+                            </h3>
+                            
+                            <div class="relative w-32 h-32 mb-4">
+                                <div class="radial-progress text-green-500 text-6xl font-bold" style="--value:0; --size:8rem; --thickness:8px;" id="score-progress">
+                                    <span id="score-text" class="text-2xl">0%</span>
+                                </div>
+                            </div>
+                            
+                            <div class="text-center">
+                                <div class="badge badge-success gap-2 p-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M20 6L9 17l-5-5"/>
+                                    </svg>
+                                    <span>สถานะปัจจุบัน</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Latest Feedback -->
+            <div class="mb-8">
+                <div class="alert alert-info shadow-lg glass-card border-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 16v-4"/>
+                        <path d="M12 8h.01"/>
                     </svg>
-                    คำแนะนำจากระบบ
-                </h3>
-                <ul id="feedback-list" class="mt-4 space-y-3 opacity-0 translate-y-2 transition-all duration-700 ease-in-out">
-                </ul>
+                    <div>
+                        <h3 class="font-bold text-lg">คำแนะนำล่าสุด</h3>
+                        <p id="last-feedback-text" class="text-lg">รอการตรวจจับ...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="result" class="card bg-white/70 backdrop-blur-sm shadow-xl border border-white/50">
+                <div class="card-body p-8">
+                    <h2 class="card-title text-orange-600 justify-center text-3xl mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 11H5a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2h-4"/>
+                            <path d="M9 7h6"/>
+                            <path d="M12 7v4"/>
+                        </svg>
+                        ผลการตรวจจับท่าทาง
+                    </h2>
+                    
+                    <div class="text-center mb-6">
+                        <p id="result-message" class="text-xl text-orange-700 font-medium">
+                            เริ่มต้นการตรวจจับเพื่อดูผลลัพธ์
+                        </p>
+                    </div>
+                    
+                    <div class="divider"></div>
+                    
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-semibold text-orange-600">รายละเอียด</h3>
+                        <ul id="result-details" class="space-y-2 text-orange-700"></ul>
+                    </div>
+                    
+                    <div id="feedback-section" class="mt-6 p-6 bg-gradient-to-r from-blue-50 to-blue-100 rounded-2xl border-l-4 border-blue-400 shadow-lg">
+                        <h3 class="text-lg font-semibold text-blue-600 flex items-center gap-2 mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77 5.82 21 7 14.12 2 9.27l6.91-1L12 2z"/>
+                            </svg>
+                            คำแนะนำจากระบบ
+                        </h3>
+                        <ul id="feedback-list" class="space-y-3"></ul>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-<script>
-let currentStream;
-let detectionInterval = null;
-let accumulatedScores = [];
-const detectionFrequency = 5000;
-let startTime;
-let timerInterval = null;
-let timerStartTime = null;
+    <script>
+        // จากไฟล์ JavaScript ที่ได้รับ
+        let currentStream;
+        let detectionInterval = null;
+        let accumulatedScores = [];
+        const detectionFrequency = 5000;
+        let startTime;
+        let timerInterval = null;
+        let timerStartTime = null;
 
-const STORAGE_KEY = 'preferredCameraId';
+        const STORAGE_KEY = 'preferredCameraId';
 
-const videoElement = document.getElementById('video');
-const cameraSelect = document.getElementById('cameraSelect');
-const startButton = document.getElementById('start-button');
-const stopButton = document.getElementById('stop-button');
+        const videoElement = document.getElementById('video');
+        const cameraSelect = document.getElementById('cameraSelect');
+        const startButton = document.getElementById('start-button');
+        const stopButton = document.getElementById('stop-button');
 
-function getCSRFToken() {
-    const cookies = document.cookie.split(';');
-    for (let i = 0; i < cookies.length; i++) {
-        const cookie = cookies[i].trim();
-        if (cookie.startsWith('csrftoken=')) {
-            return cookie.substring('csrftoken='.length, cookie.length);
-        }
-    }
-    return null;
-}
-
-// ฟังก์ชันสำหรับจัดการ Local Storage
-function savePreferredCamera(deviceId) {
-    localStorage.setItem(STORAGE_KEY, deviceId);
-}
-
-function getPreferredCamera() {
-    return localStorage.getItem(STORAGE_KEY);
-}
-
-async function listCameras() {
-    try {
-        await navigator.mediaDevices.getUserMedia({ video: true });
-        const devices = await navigator.mediaDevices.enumerateDevices();
-        const videoDevices = devices.filter(device => device.kind === 'videoinput');
-        cameraSelect.innerHTML = '';
-
-        const defaultOption = document.createElement('option');
-        defaultOption.value = '';
-        defaultOption.text = 'เลือกกล้อง';
-        cameraSelect.appendChild(defaultOption);
-
-        const preferredCameraId = getPreferredCamera();
-
-        videoDevices.forEach((device, index) => {
-            const option = document.createElement('option');
-            option.value = device.deviceId;
-            option.text = device.label || `กล้อง ${index + 1}`;
-            if (device.deviceId === preferredCameraId) {
-                option.selected = true;
+        function getCSRFToken() {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.startsWith('csrftoken=')) {
+                    return cookie.substring('csrftoken='.length, cookie.length);
+                }
             }
-            cameraSelect.appendChild(option);
-        });
-
-        if (preferredCameraId && videoDevices.some(device => device.deviceId === preferredCameraId)) {
-            startStream(preferredCameraId);
-        } else if (videoDevices.length > 0) {
-            startStream(videoDevices[0].deviceId);
+            return null;
         }
-    } catch (error) {
-        console.error('Error listing cameras:', error);
-        alert('ไม่สามารถเข้าถึงกล้องได้ กรุณาตรวจสอบสิทธิ์การเข้าถึงกล้องของคุณ');
-    }
-}
 
-async function startStream(deviceId) {
-    if (currentStream) {
-        currentStream.getTracks().forEach(track => track.stop());
-    }
-
-    try {
-        const constraints = {
-            video: deviceId ? { deviceId: { exact: deviceId } } : true
-        };
-        
-        const stream = await navigator.mediaDevices.getUserMedia(constraints);
-        currentStream = stream;
-        videoElement.srcObject = stream;
-        
-        if (deviceId) {
-            savePreferredCamera(deviceId);
+        // ฟังก์ชันสำหรับจัดการ Local Storage
+        function savePreferredCamera(deviceId) {
+            // ใช้ memory storage แทน localStorage
+            window.preferredCameraId = deviceId;
         }
-    } catch (error) {
-        console.error('Error starting stream:', error);
-        alert('เกิดข้อผิดพลาดในการเข้าถึงกล้อง กรุณาลองกล้องอื่นหรือเช็คสิทธิ์การเข้าถึง');
-    }
-}
 
-// Event Listeners
-document.addEventListener('DOMContentLoaded', () => {
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        alert('เบราว์เซอร์ของคุณไม่รองรับการเข้าถึงกล้อง');
-        return;
-    }
-    listCameras();
-});
-
-cameraSelect.addEventListener('change', (e) => {
-    if (e.target.value) {
-        startStream(e.target.value);
-    }
-});
-
-let errorCount = 0; // ตัวแปรนับจำนวนข้อผิดพลาด
-
-function handleDetectionError(errorMessage) {
-    errorCount++; 
-    
-    if (errorCount === 3) {
-        notifyUser("ตรวจพบข้อผิดพลาด 3 ครั้ง กรุณาตรวจสอบกล้อง!");
-        alert("⚠️ ตรวจพบข้อผิดพลาดหลายครั้ง กรุณาตรวจสอบกล้องหรือตำแหน่งของคุณ!");
-    }
-    
-    if (errorCount >= 5) {
-        notifyUser("ระบบหยุดการตรวจจับอัตโนมัติเนื่องจากพบข้อผิดพลาดบ่อยเกินไป!");
-        alert("🚨 ตรวจพบข้อผิดพลาดมากเกินไป ระบบหยุดการตรวจจับอัตโนมัติ!");
-        stopDetection();
-    }
-}
-
-// แทนที่ฟังก์ชัน captureFrame เดิม
-function captureFrame() {
-    const canvas = document.createElement('canvas');
-    canvas.width = 640;
-    canvas.height = 480;
-    const context = canvas.getContext('2d');
-    context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
-
-    const imageData = canvas.toDataURL('image/png');
-
-    fetch('/posture-detection/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCSRFToken(),
-        },
-        body: JSON.stringify({ image: imageData, detect_type: 'Side-part Detection' })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.error) {
-            console.error(`ข้อผิดพลาด: ${data.error}`);
-            handleDetectionError(data.error);
-        } else {
-            accumulatedScores.push(data.score);
-            updateResults(data);
-            errorCount = 0; // รีเซ็ตค่าเมื่อไม่มีข้อผิดพลาด
+        function getPreferredCamera() {
+            return window.preferredCameraId || null;
         }
-    })
-    .catch(error => {
-        console.error('ข้อผิดพลาดในการประมวลผลภาพ:', error);
-        handleDetectionError(error.message);
-    });
-}
 
-// ฟังก์ชันสำหรับอัปเดตผลลัพธ์และ feedback
-function updateResults(data) {
-    document.getElementById('result-message').textContent = data.message;
-    
-    const scoreText = document.getElementById('score-text');
-    const scoreCircle = document.getElementById('score-circle');
-    const resultDetails = document.getElementById('result-details');
+        async function listCameras() {
+            try {
+                await navigator.mediaDevices.getUserMedia({ video: true });
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const videoDevices = devices.filter(device => device.kind === 'videoinput');
+                cameraSelect.innerHTML = '';
 
-    // อัปเดตค่าให้คะแนนใน UI
-    let score = data.score || 0;
-    let roundedScore = score.toFixed(1);
-    scoreText.textContent = `${roundedScore}%`;
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.text = 'เลือกกล้อง';
+                cameraSelect.appendChild(defaultOption);
 
-    // อัปเดต progress ของวงกลม
-    if (scoreCircle) {  
-        let maxStroke = 251.2;
-        let newOffset = maxStroke - (score / 100) * maxStroke;
-        scoreCircle.style.strokeDashoffset = newOffset;
-    }
+                const preferredCameraId = getPreferredCamera();
 
-    // เพิ่มการแสดงผลข้อมูลการจัดตำแหน่งกล้องและความสมมาตร
-    const alignmentInfo = `
-        <div class="mt-4 space-y-2">
-            <h3 class="text-lg font-semibold text-orange-600">ข้อมูลการจัดตำแหน่ง:</h3>
-            <div class="grid grid-cols-2 gap-4">
-                <div class="flex items-center gap-2">
-                    <span class="w-3 h-3 rounded-full ${data.angles.camera_aligned ? 'bg-green-500' : 'bg-red-500'}"></span>
-                    <span>การจัดตำแหน่งกล้อง: ${data.angles.camera_aligned ? 'ถูกต้อง' : 'ไม่ถูกต้อง'}</span>
-                </div>
-                <div class="flex items-center gap-2">
-                    <span class="w-3 h-3 rounded-full ${data.angles.shoulder_symmetry ? 'bg-green-500' : 'bg-red-500'}"></span>
-                    <span>ความสมมาตรของไหล่: ${data.angles.shoulder_symmetry ? 'สมมาตร' : 'ไม่สมมาตร'}</span>
-                </div>
-                <div class="flex items-center gap-2">
-                    <span class="w-3 h-3 rounded-full ${data.angles.hip_symmetry ? 'bg-green-500' : 'bg-red-500'}"></span>
-                    <span>ความสมมาตรของสะโพก: ${data.angles.hip_symmetry ? 'สมมาตร' : 'ไม่สมมาตร'}</span>
-                </div>
-            </div>
-            <p class="text-sm text-gray-600">${data.angles.camera_alignment_message}</p>
-        </div>
-    `;
+                videoDevices.forEach((device, index) => {
+                    const option = document.createElement('option');
+                    option.value = device.deviceId;
+                    option.text = device.label || `กล้อง ${index + 1}`;
+                    if (device.deviceId === preferredCameraId) {
+                        option.selected = true;
+                    }
+                    cameraSelect.appendChild(option);
+                });
 
-    // แทรกข้อมูลการจัดตำแหน่งลงใน result-details
-    resultDetails.innerHTML = alignmentInfo;
+                if (preferredCameraId && videoDevices.some(device => device.deviceId === preferredCameraId)) {
+                    startStream(preferredCameraId);
+                } else if (videoDevices.length > 0) {
+                    startStream(videoDevices[0].deviceId);
+                }
+            } catch (error) {
+                console.error('Error listing cameras:', error);
+                alert('ไม่สามารถเข้าถึงกล้องได้ กรุณาตรวจสอบสิทธิ์การเข้าถึงกล้องของคุณ');
+            }
+        }
 
-    // อัปเดต feedback
-    const feedbackList = document.getElementById('feedback-list');
-    feedbackList.innerHTML = '';
+        async function startStream(deviceId) {
+            if (currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
+            }
 
-    if (data.feedback && data.feedback.length > 0) {
-        data.feedback.forEach((feedback, index) => {
-            const feedbackItem = document.createElement('li');
-            feedbackItem.className = "flex items-start gap-3 p-3 bg-white/50 rounded-xl shadow-sm border-l-4 border-orange-300 opacity-0 translate-x-5 transition-all duration-700 ease-out";
-            feedbackItem.innerHTML = `<span class="text-gray-700">${feedback}</span>`;
+            try {
+                const constraints = {
+                    video: deviceId ? { deviceId: { exact: deviceId } } : true
+                };
+                
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                currentStream = stream;
+                videoElement.srcObject = stream;
+                
+                if (deviceId) {
+                    savePreferredCamera(deviceId);
+                }
+            } catch (error) {
+                console.error('Error starting stream:', error);
+                alert('เกิดข้อผิดพลาดในการเข้าถึงกล้อง กรุณาลองกล้องอื่นหรือเช็คสิทธิ์การเข้าถึง');
+            }
+        }
 
-            setTimeout(() => {
-                feedbackItem.classList.add("opacity-100", "translate-x-0");
-            }, index * 300);
+        let errorCount = 0; // ตัวแปรนับจำนวนข้อผิดพลาด
 
-            feedbackList.appendChild(feedbackItem);
-        });
+        function handleDetectionError(errorMessage) {
+            errorCount++; 
+            
+            if (errorCount === 3) {
+                notifyUser("ตรวจพบข้อผิดพลาด 3 ครั้ง กรุณาตรวจสอบกล้อง!");
+                alert("⚠️ ตรวจพบข้อผิดพลาดหลายครั้ง กรุณาตรวจสอบกล้องหรือตำแหน่งของคุณ!");
+            }
+            
+            if (errorCount >= 5) {
+                notifyUser("ระบบหยุดการตรวจจับอัตโนมัติเนื่องจากพบข้อผิดพลาดบ่อยเกินไป!");
+                alert("🚨 ตรวจพบข้อผิดพลาดมากเกินไป ระบบหยุดการตรวจจับอัตโนมัติ!");
+                stopDetection();
+            }
+        }
 
-        setTimeout(() => {
-            feedbackList.classList.add("opacity-100", "translate-y-0");
-        }, 300);
+        // แทนที่ฟังก์ชัน captureFrame เดิม
+        function captureFrame() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 640;
+            canvas.height = 480;
+            const context = canvas.getContext('2d');
+            context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
 
-        document.getElementById('last-feedback-text').textContent = data.feedback[data.feedback.length - 1];
-    }
-}
+            const imageData = canvas.toDataURL('image/png');
 
-function startDetection() {
-    startButton.disabled = true;
-    stopButton.disabled = false;
-    accumulatedScores = [];
-    startTime = new Date();
-    startRealTimeTimer();
-    
-    detectionInterval = setInterval(() => {
-        const currentTime = new Date();
-        const detectionDuration = (currentTime - startTime) / 1000;
-        captureFrame();
-    }, detectionFrequency);
-
-
-    captureFrame();
-}
-
-function stopDetection() {
-    startButton.disabled = false;
-    stopButton.disabled = true;
-    clearInterval(detectionInterval);
-
-    const averageScore = accumulatedScores.length > 0 ? 
-        Math.round(accumulatedScores.reduce((a, b) => a + b, 0) / accumulatedScores.length) : 0;
-
-    const endTime = new Date();
-    const detectionDuration = (endTime - startTime) / 1000;
-
-    stopRealTimeTimer();
-
-    // เรียกใช้ posture-detection endpoint เพื่อรับ feedback
-    fetch('/posture-detection/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCSRFToken(),
-        },
-        body: JSON.stringify({ 
-            image: captureCurrentFrame(),
-            detect_type: 'Side-part Detection' 
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        // บันทึกผลการตรวจจับ
-        return fetch('/save-detection-result/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCSRFToken(),
-            },
-            body: JSON.stringify({ 
-                score: averageScore, 
-                detection_duration: detectionDuration 
+            // เรียก API จริงที่ /posture-detection/
+            fetch('/posture-detection/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken(),
+                },
+                body: JSON.stringify({ image: imageData, detect_type: 'Side-part Detection' })
             })
-        });
-    })
-    .then(response => response.json())
-    .then(data => {
-        // แสดงผลลัพธ์และ feedback
-        document.getElementById('result-message').textContent = 
-            `หยุดการตรวจจับแล้ว คะแนนเฉลี่ย: ${averageScore} / 100`;
-        
-        document.getElementById('result-details').innerHTML = `
-            <li><strong>คะแนนเฉลี่ย:</strong> ${averageScore} / 100</li>
-            <li><strong>ระยะเวลา:</strong> ${detectionDuration} วินาที</li>
-        `;
-
-        // แสดง feedback ถ้ามี
-        if (data.feedback && data.feedback.length > 0) {
-            const feedbackList = data.feedback.map(item => `<li>${item}</li>`).join('');
-            document.getElementById('feedback-section').innerHTML = `
-                <h3 class="text-lg font-semibold text-orange-600 mt-4">ข้อเสนอแนะ:</h3>
-                <ul class="list-disc list-inside text-gray-700 mt-2">
-                    ${feedbackList}
-                </ul>
-            `;
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    console.error(`ข้อผิดพลาด: ${data.error}`);
+                    handleDetectionError(data.error);
+                } else {
+                    accumulatedScores.push(data.score);
+                    updateResults(data);
+                    errorCount = 0;
+                }
+            })
+            .catch(error => {
+                console.error('ข้อผิดพลาดในการประมวลผลภาพ:', error);
+                handleDetectionError(error.message);
+            });
+            
         }
-    })
-    .catch(error => {
-        console.error('ข้อผิดพลาดในการบันทึกผลการตรวจจับ:', error);
-    });
-}
 
-// เพิ่มฟังก์ชัน helper สำหรับจับภาพปัจจุบัน
-function captureCurrentFrame() {
-    const canvas = document.createElement('canvas');
-    canvas.width = videoElement.videoWidth;
-    canvas.height = videoElement.videoHeight;
-    const context = canvas.getContext('2d');
-    context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
-    return canvas.toDataURL('image/png');
-}
+        // ฟังก์ชันสำหรับอัปเดตผลลัพธ์และ feedback
+        function updateResults(data) {
+            document.getElementById('result-message').textContent = data.message;
+            
+            const scoreText = document.getElementById('score-text');
+            const scoreProgress = document.getElementById('score-progress');
+            const resultDetails = document.getElementById('result-details');
 
-function startRealTimeTimer() {
-    timerStartTime = new Date(); // บันทึกเวลาเริ่มต้น
-    timerInterval = setInterval(() => {
-        const currentTime = new Date();
-        const elapsedTime = Math.floor((currentTime - timerStartTime) / 1000); // เวลาที่ผ่านไปในหน่วยวินาที
-        const hours = Math.floor(elapsedTime / 3600);
-        const minutes = Math.floor((elapsedTime % 3600) / 60);
-        const seconds = elapsedTime % 60;
+            // อัปเดตค่าคะแนนใน UI
+            let score = data.score || 0;
+            let roundedScore = score.toFixed(1);
+            scoreText.textContent = `${roundedScore}%`;
 
-        // อัปเดต UI
-        document.getElementById('real-time-hours').textContent = hours.toString().padStart(2, '0');
-        document.getElementById('real-time-minutes').textContent = minutes.toString().padStart(2, '0');
-        document.getElementById('real-time-seconds').textContent = seconds.toString().padStart(2, '0');
-    }, 1000); // เรียกใช้งานทุก ๆ 1 วินาที
-}
+            // อัปเดต progress circle
+            if (scoreProgress) {
+                scoreProgress.style.setProperty('--value', score);
+                
+                if (score < 50) {
+                    scoreProgress.className = 'radial-progress text-red-500 text-6xl font-bold';
+                } else if (score < 80) {
+                    scoreProgress.className = 'radial-progress text-yellow-500 text-6xl font-bold';
+                } else {
+                    scoreProgress.className = 'radial-progress text-green-500 text-6xl font-bold';
+                }
+            }
 
-function stopRealTimeTimer() {
-    clearInterval(timerInterval); 
-}
+            // เพิ่มการแสดงผลข้อมูลการจัดตำแหน่งกล้องและความสมมาตร
+            const alignmentInfo = `
+                <div class="mt-4 space-y-2">
+                    <h3 class="text-lg font-semibold text-orange-600">ข้อมูลการจัดตำแหน่ง:</h3>
+                    <div class="grid grid-cols-1 gap-2">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full ${data.angles.camera_aligned ? 'bg-green-500' : 'bg-red-500'}"></span>
+                            <span>การจัดตำแหน่งกล้อง: ${data.angles.camera_aligned ? 'ถูกต้อง' : 'ไม่ถูกต้อง'}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full ${data.angles.shoulder_symmetry ? 'bg-green-500' : 'bg-red-500'}"></span>
+                            <span>ความสมมาตรของไหล่: ${data.angles.shoulder_symmetry ? 'สมมาตร' : 'ไม่สมมาตร'}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full ${data.angles.hip_symmetry ? 'bg-green-500' : 'bg-red-500'}"></span>
+                            <span>ความสมมาตรของสะโพก: ${data.angles.hip_symmetry ? 'สมมาตร' : 'ไม่สมมาตร'}</span>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-600">${data.angles.camera_alignment_message}</p>
+                </div>
+            `;
 
-// ขออนุญาตแจ้งเตือนเมื่อโหลดหน้าเว็บ
-document.addEventListener("DOMContentLoaded", function () {
-    if (Notification.permission !== "granted") {
-        Notification.requestPermission();
-    }
-    listCameras(); // เรียกฟังก์ชันเดิม
-});
+            // แทรกข้อมูลการจัดตำแหน่งลงใน result-details
+            resultDetails.innerHTML = alignmentInfo;
 
-// ฟังก์ชันแจ้งเตือน
-function notifyUser(errorMessage) {
-    if (Notification.permission === "granted") {
-        new Notification("⚠️ แจ้งเตือนจากระบบตรวจจับ!", {
-            body: errorMessage,
-            icon: "https://cdn-icons-png.flaticon.com/512/564/564619.png",
-            silent: false
+            // อัปเดต feedback
+            const feedbackList = document.getElementById('feedback-list');
+            feedbackList.innerHTML = '';
+
+            if (data.feedback && data.feedback.length > 0) {
+                data.feedback.forEach((feedback, index) => {
+                    const feedbackItem = document.createElement('li');
+                    feedbackItem.className = "flex items-start gap-3 p-3 bg-white/50 rounded-xl shadow-sm border-l-4 border-orange-300 opacity-0 translate-x-5 transition-all duration-700 ease-out";
+                    feedbackItem.innerHTML = `<span class="text-gray-700">${feedback}</span>`;
+
+                    setTimeout(() => {
+                        feedbackItem.classList.add("opacity-100", "translate-x-0");
+                    }, index * 300);
+
+                    feedbackList.appendChild(feedbackItem);
+                });
+
+                setTimeout(() => {
+                    feedbackList.classList.add("opacity-100", "translate-y-0");
+                }, 300);
+
+                document.getElementById('last-feedback-text').textContent = data.feedback[data.feedback.length - 1];
+            }
+        }
+
+        function startDetection() {
+            startButton.disabled = true;
+            stopButton.disabled = false;
+            accumulatedScores = [];
+            startTime = new Date();
+            startRealTimeTimer();
+            
+            detectionInterval = setInterval(() => {
+                const currentTime = new Date();
+                const detectionDuration = (currentTime - startTime) / 1000;
+                captureFrame();
+            }, detectionFrequency);
+
+            captureFrame();
+        }
+
+        function stopDetection() {
+            startButton.disabled = false;
+            stopButton.disabled = true;
+            clearInterval(detectionInterval);
+
+            const averageScore = accumulatedScores.length > 0 ? 
+                Math.round(accumulatedScores.reduce((a, b) => a + b, 0) / accumulatedScores.length) : 0;
+
+            const endTime = new Date();
+            const detectionDuration = (endTime - startTime) / 1000;
+
+            stopRealTimeTimer();
+
+            // แสดงผลลัพธ์
+            document.getElementById('result-message').textContent = 
+                `หยุดการตรวจจับแล้ว คะแนนเฉลี่ย: ${averageScore} / 100`;
+            
+            document.getElementById('result-details').innerHTML = `
+                <div class="space-y-2">
+                    <div class="flex justify-between">
+                        <span><strong>คะแนนเฉลี่ย:</strong></span>
+                        <span>${averageScore} / 100</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span><strong>ระยะเวลา:</strong></span>
+                        <span>${Math.round(detectionDuration)} วินาที</span>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('last-feedback-text').textContent = 'รอการตรวจจับ...';
+        }
+
+        // เพิ่มฟังก์ชัน helper สำหรับจับภาพปัจจุบัน
+        function captureCurrentFrame() {
+            const canvas = document.createElement('canvas');
+            canvas.width = videoElement.videoWidth;
+            canvas.height = videoElement.videoHeight;
+            const context = canvas.getContext('2d');
+            context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+            return canvas.toDataURL('image/png');
+        }
+
+        function startRealTimeTimer() {
+            timerStartTime = new Date(); // บันทึกเวลาเริ่มต้น
+            timerInterval = setInterval(() => {
+                const currentTime = new Date();
+                const elapsedTime = Math.floor((currentTime - timerStartTime) / 1000); // เวลาที่ผ่านไปในหน่วยวินาที
+                const hours = Math.floor(elapsedTime / 3600);
+                const minutes = Math.floor((elapsedTime % 3600) / 60);
+                const seconds = elapsedTime % 60;
+
+                // อัปเดต UI
+                document.getElementById('real-time-hours').textContent = hours.toString().padStart(2, '0');
+                document.getElementById('real-time-minutes').textContent = minutes.toString().padStart(2, '0');
+                document.getElementById('real-time-seconds').textContent = seconds.toString().padStart(2, '0');
+            }, 1000); // เรียกใช้งานทุก ๆ 1 วินาที
+        }
+
+        function stopRealTimeTimer() {
+            clearInterval(timerInterval); 
+        }
+
+        // ฟังก์ชันแจ้งเตือน
+        function notifyUser(errorMessage) {
+            if (Notification.permission === "granted") {
+                new Notification("⚠️ แจ้งเตือนจากระบบตรวจจับ!", {
+                    body: errorMessage,
+                    icon: "https://cdn-icons-png.flaticon.com/512/564/564619.png",
+                    silent: false
+                });
+            }
+        }
+
+        // Toggle example image
+        document.getElementById('toggle-example').addEventListener('change', function() {
+            const exampleDiv = document.getElementById('example-posture');
+            if (this.checked) {
+                exampleDiv.classList.remove('hidden');
+            } else {
+                exampleDiv.classList.add('hidden');
+            }
         });
-    }
-}
-</script>
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            // ขออนุญาตแจ้งเตือน
+            if (Notification.permission !== "granted") {
+                Notification.requestPermission();
+            }
+            
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                alert('เบราว์เซอร์ของคุณไม่รองรับการเข้าถึงกล้อง');
+                return;
+            }
+            listCameras();
+        });
+
+        cameraSelect.addEventListener('change', (e) => {
+            if (e.target.value) {
+                startStream(e.target.value);
+            }
+        });
+    </script>
 </body>
+</html>
 {% endblock %}
